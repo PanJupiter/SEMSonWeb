@@ -1,0 +1,154 @@
+﻿@page "/dashboard"
+@page "/dashboard/{IdUserCode}"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS;
+
+
+<div class="modal fade show " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none; background:#00000080; padding-top:10%;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+          <button type="button" @onclick='eventArgs=>HideModal("exampleModal")' class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form @onsubmit='eventArgs=>SaveHideModal("exampleModal")'>
+                <div class="visually-hidden">
+                    <label class="form-label ">Id</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="form-group mb-3" >
+                    <label class="form-label mt-3"><b>บันทึกรายการยืมอุปกรณ์</b></label>
+                    <input type="text" class="form-control " placeholder="รหัสนักศึกษา หรือรหัสบัตรประชาชน" @bind="@IdUserCode">
+                </div>
+                <div class="float-end">
+                        <button  class= "btn btn-primary" type="submit">ค้นหา</button>
+                </div>
+            </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="btn btn-primary">หน้าหลัก</button>
+<button @onclick='eventArgs=>ShowModal("exampleModal")' class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#exampleModal">บันทึกการยืม-คืน</button>
+<button class="btn btn-success">ประวัติการยืม</button>
+@if(IdUserCode != null){
+    <div class = "@checkIDdisplay ">
+        @foreach(var speq in TakeUser)
+        {
+            if (speq.LSPClientProfile != null)
+            {   
+                if (speq.LSPClientProfile.PHProfileIDcard == IdUserCode || speq.LSPClientProfile.PHProfileIDstudent == IdUserCode)
+                {
+                        <p class="stymem">@speq.LSPClientProfile.LSPClientPre?.PHPreName@speq.LSPClientProfile.PHProfilefName @speq.LSPClientProfile.PHProfilelName &nbsp;&nbsp;&nbsp; แผนก @speq.LSPClientProfile.LSPClientDep?.PHDepName &nbsp;&nbsp;&nbsp;ชั้น @speq.LSPClientProfile.LSPClientClass?.PHClassName / @speq.LSPClientProfile.PHProfileClassroom</p>
+                        <div><span class="conle">ประวัติการยืม</span> <span class="conri">ยืมอุปกรณ์กีฬา</span></div>
+
+                }
+            }
+        }
+        <FetchData IdUsercode=@IdUser/>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public string? IdUserCode { get; set; }
+
+    public string? IdUser { get; set; }
+
+    public string? checkIDdisplay { get; set; } = "visually-hidden";
+
+    private List<SPClientUser> TakeUser { get; set; } = new();
+    private SPClientUser  TakeUserX { get; set; } = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPClientUser();
+        await ServicesData.GetDbSPModelEquip();
+
+        ServicesData.Callab += StateHasChanged;
+        TakeUser = ServicesData.SPClientUserList.ToList();
+    }
+    private IJSObjectReference module;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender != true)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+        }
+    }
+    protected async void ShowModal(string elementID)
+    {
+        if(module != null)
+        {
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+    }
+    protected async void HideModal(string elementID)
+    {
+        if(module != null)
+        {
+            IdUserCode = string.Empty;
+            IdUser = string.Empty;
+            checkIDdisplay = "visually-hidden"; 
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    protected async Task SaveHideModal(string elementID)
+    {
+        if(module != null)
+        {   
+            var results = TakeUser.Where(a => a.LSPClientProfile?.PHProfileIDcard == IdUserCode).ToList();
+            var resulted = TakeUser.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IdUserCode).ToList();
+            if (results?.Count() == 1 || resulted?.Count() == 1 )
+            {
+                checkIDdisplay = "visually-visible";
+                foreach(var speq in TakeUser)
+                {
+                    if (speq.LSPClientProfile != null)
+                    {   
+                        if (speq.LSPClientProfile.PHProfileIDcard == IdUserCode || speq.LSPClientProfile.PHProfileIDstudent == IdUserCode)
+                        {
+                            IdUser = speq.PHUserCode;
+                            await module.InvokeAsync<string>("HideModal", elementID);
+                        }
+                    }
+                }
+
+            }
+            if (results?.Count() != 1 && resulted?.Count() != 1 )
+            {
+                var resultes = await JS.InvokeAsync<bool>("NotFoundAlert");
+                if (resultes)
+                {
+                    IdUserCode = string.Empty;
+                    IdUser = string.Empty;
+                    checkIDdisplay = "visually-hidden"; 
+                }
+            }
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    public void Contack(string iduser){
+
+    }
+    public void Dispose()
+    {
+         ServicesData.Callab -= StateHasChanged;
+    }
+}

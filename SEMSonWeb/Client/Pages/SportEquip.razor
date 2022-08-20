@@ -1,0 +1,91 @@
+﻿@page "/Sport"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>รายการอุปกรณ์กีฬา</h3>
+<button class="Addbtn" @onclick="AddSport" >เพิ่มอุปกรณ์กีฬา</button>
+<div class="block_table">
+    <table class = "table">
+        <thead>   
+            <tr>
+                <th class="text-center">อุปกรณ์กีฬา</th>
+                <th class="text-center">ประเภทกีฬา 
+                    <div class="filter"><i class="oi oi-project"></i>
+                        <div class="filters">
+                        <div class="input-group">
+                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fill"/>
+                        </div>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillter">search</button>
+                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillter">clear</button>
+                        </div>
+                    </div></div></th>
+                <th class="text-center">จำนวน</th>
+                <th class="text-center">หน่วย</th>
+                <th class="text-center">actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var speq in FilterSport)
+            {
+                <tr>
+                    <td class="text-center">@speq.PHEquipName</td>
+                    <td class="text-center">@speq.LSPModelSport?.PHSportName</td>
+                    <td class="text-center">@speq.PHEquipAmount</td>
+                    <td class="text-center">@speq.PHEquipUnit</td>
+                    <td class="text-center">
+                        <button class = "btn-primary border border-thin"@onclick="()=>EditEquips(speq)" title="Title"><i class=" oi oi-pencil"></i></button>
+                        <button class = "btn-danger border border-thin"@onclick="()=>DeleteEquip(speq)" title="Title"><i class=" oi oi-trash" ></i></button>
+                    </td> 
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@code {
+    private List<SPModelEquip> FilterSport { get; set; } = new();
+    public string fill { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPModelEquip();
+        ServicesData.Callab += StateHasChanged;
+        FilterSport = ServicesData.SPModelEquipList.ToList();
+    }
+    public void AddSport()
+    {
+        ServicesData.ClearformSport();
+        Navigation.NavigateTo("Sport/Add_Edit");
+    }
+    public void EditEquips(SPModelEquip speq)
+    {
+        ServicesData.EditEquip(new SPModelEquip { PHEquipCode = speq.PHEquipCode,PHEquipAmount = speq.PHEquipAmount,PHEquipImg = speq.PHEquipImg,PHEquipName = speq.PHEquipName,PHEquipUnit = speq.PHEquipUnit,PHSportCode = speq.PHSportCode});
+        Navigation.NavigateTo("Sport/Add_Edit");
+    }
+    public async Task DeleteEquip(SPModelEquip speq)
+    {   
+        var result = await JS.InvokeAsync<bool>("DeleteMemberjs");  
+        if (result)
+        {
+            if ( speq.PHEquipCode!= null)
+            {
+                await ServicesData.DeleteDbSPModelEquip(speq.PHEquipCode);
+                FilterSport = ServicesData.SPModelEquipList.ToList();
+            }
+        }
+    }
+    public void Dispose()
+    {
+         ServicesData.Callab -= StateHasChanged;
+    }
+    public void fillter()
+    {
+        if(fill != string.Empty)
+            FilterSport = ServicesData.SPModelEquipList.Where(a => a.LSPModelSport?.PHSportName == fill).ToList();
+    }
+    public void Clearfillter()
+    {
+        fill = string.Empty;
+        FilterSport = ServicesData.SPModelEquipList.ToList();
+    }
+}

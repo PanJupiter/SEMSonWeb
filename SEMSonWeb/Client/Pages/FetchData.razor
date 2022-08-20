@@ -1,0 +1,249 @@
+﻿@page "/fetchdata"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+
+<div class="modal fade show " id="TakeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none; background:#00000080; padding-top:10%;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+          <button type="button" @onclick='eventArgs=>HideModal("TakeModal")' class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form @onsubmit='eventArgs=>SaveBorModal("TakeModal")'>
+                <div class="visually-hidden">
+                    <label class="form-label ">Id</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="form-group mb-3" >
+                    <label class="form-label mt-3"><b>จำนวนที่ต้องการยืม</b></label>
+                    <input type="number" class="form-control " placeholder="กรอกจำนวนที่ต้องการยืม" @bind="@borrow">
+                </div>
+                <div class="float-end">
+                        <button  class= "btn btn-primary" type="submit">ตกลง</button>
+                </div>
+            </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="block_table">
+    <table class = "table">
+        <thead>   
+            <tr>
+                <th class="www text-center">ชื่ออุปกรณ์</th>
+                <th class="www text-center">ประเภทกีฬา 
+                    <div class="filter"><i class="oi oi-project"></i>
+                        <div class="filters">
+                        <div class="input-group">
+                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fill"/>
+                        </div>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillter">search</button>
+                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillter">clear</button>
+                        </div>
+                    </div></div></th>
+                <th class="text-center">ถูกยืม</th>
+                <th class="text-center">คงเหลือ</th>
+                <th class="text-center">ต้องการยืม</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var speq in FilterSport)
+            {
+                <tr>
+                    <td class="text-center">@speq.PHEquipName</td>
+                    <td class="text-center">@speq.LSPModelSport?.PHSportName</td>
+                    <td class="text-center">@speq.PHEquipBorroww</td>
+                    <td class="text-center">@speq.PHEquipTotal</td>
+                    <td class="text-center">
+                        <button class ="btn btn-success" @onclick='eventArgs=>BorrowModal("TakeModal",speq)'>ยืม</button>
+                    </td> 
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="block_table">
+    <table class = "table">
+        <thead>   
+            <tr>
+                <th class="text-center">อุปกรณ์</th>
+                <th class="text-center">ยืม</th>
+                <th class="text-center">ว/ด/ป (ยืม)</th>
+                <th class="www text-center">คืน</th>
+                <th class="www text-center">ว/ด/ป (คืน)</th>
+                <th class="www text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var his in ServicesData.histories)
+            {
+                if (his.SPClientUsers.PHUserCode == IdUsercode)
+                {
+                    <tr>
+                        <td class="text-center">@his.PHEquipName</td>
+                        <td class="text-center">@his.PHequipBorrow</td>
+                        <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
+                        <td class="text-center">@his.PHequipReturn</td>
+                        <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/mm/yyyy")</td>
+                        <td class="text-center">
+                            @if(his.SPClientWhenReturn == null)
+                            {
+                                <button class ="btn btn-success"@onclick="()=>TurnEquip(his)">คืน</button>
+                            }
+                            else
+                            {
+                                <text>คืนแล้ว</text>
+                            }
+                        </td> 
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+@code {
+    [Parameter]
+    public string? IdUsercode { get; set; }
+
+    public List<History> histories { get; set; } = new List<History>();
+    private List<SPModelEquip> FilterSport { get; set; } = new();
+    public string fill { get; set; } = string.Empty;
+
+    public int borrow { get; set; } = 0;
+    public int addborrow { get; set; } = 0;
+    public int totalbefore { get; set; } = 0;
+    public int totalafter { get; set; } = 0;
+    public string IdEquip { get; set; } = string.Empty;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPModelEquip();
+        await ServicesData.GetDbSPClientUser();
+        await ServicesData.GetDbSPHisAction();
+        FilterSport = ServicesData.SPModelEquipList.ToList();
+        ServicesData.Callab += StateHasChanged;
+    }
+    public void fillter()
+    {
+        if(fill != string.Empty)
+            FilterSport = ServicesData.SPModelEquipList.Where(a => a.LSPModelSport?.PHSportName == fill).ToList();
+    }
+    public void Clearfillter()
+    {
+        fill = string.Empty;
+        FilterSport = ServicesData.SPModelEquipList.ToList();
+    }
+
+    public async Task TurnEquip(History history)
+    {
+        var resultes = await JS.InvokeAsync<bool>("TurnEQjs");
+        if (resultes)
+        {
+            ServicesData.SPModelEquipX.PHEquipCode = history.PHEquipCode;
+            ServicesData.SPModelEquipX.PHEquipBorroww = history.PHequipBorrow;
+            await ServicesData.ReturnDbSPModelEquip(ServicesData.SPModelEquipX);
+
+            ServicesData.SPHisActionX.PHHisActionCode = history.PHHisActionCode;
+            ServicesData.SPHisActionX.PHequipReturn = history.PHequipBorrow;
+            await ServicesData.TurnDbSPHisAction(ServicesData.SPHisActionX);
+            FilterSport = ServicesData.SPModelEquipList.ToList();
+            ServicesData.SPHisActionX.PHHisActionCode = string.Empty;
+            ServicesData.SPModelEquipX.PHEquipCode = string.Empty;
+            ServicesData.SPHisActionX.PHequipReturn = 0;
+            ServicesData.SPModelEquipX.PHEquipBorroww = 0;
+        }
+    }
+
+    private IJSObjectReference module;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender != true)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+        }
+    }
+    protected async void BorrowModal(string elementID,SPModelEquip speq)
+    {
+        if(module != null)
+        {
+            await module.InvokeAsync<string>("showModal", elementID);
+            borrow = 0;
+            if (speq.PHEquipCode != null)
+            {
+                IdEquip = speq.PHEquipCode;
+                totalbefore = speq.PHEquipTotal;
+                addborrow = speq.PHEquipBorroww;
+            }
+
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+    }
+    protected async void HideModal(string elementID)
+    {
+        if(module != null)
+        {
+            await module.InvokeAsync<string>("HideModal", elementID);
+            borrow = 0;
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    protected async Task SaveBorModal(string elementID) 
+    {
+        if(module != null)
+        {
+            if (borrow <= totalbefore && borrow != 0)
+            {
+                ServicesData.SPHisActionX.PHIDequip = IdEquip;
+                ServicesData.SPHisActionX.PHIDuser = IdUsercode;
+                ServicesData.SPHisActionX.PHequipBorrow = borrow;
+
+                ServicesData.SPModelEquipX.PHEquipBorroww = borrow;
+                ServicesData.SPModelEquipX.PHEquipCode = IdEquip;
+                await ServicesData.BorrowDbSPModelEquip(ServicesData.SPModelEquipX);
+                await ServicesData.CreateDbSPHisAction(ServicesData.SPHisActionX);
+
+                var resultes = await JS.InvokeAsync<bool>("finishedBo");
+                if (resultes)
+                {
+                    borrow = 0;
+                    ServicesData.SPHisActionX.PHIDequip = string.Empty;
+                    ServicesData.SPHisActionX.PHIDuser = string.Empty;
+                    ServicesData.SPHisActionX.PHequipBorrow = 0;
+                    ServicesData.SPModelEquipX.PHEquipBorroww = 0;
+                    ServicesData.SPModelEquipX.PHEquipCode = string.Empty;
+                    FilterSport = ServicesData.SPModelEquipList.ToList();
+                    await module.InvokeAsync<string>("HideModal", elementID);
+                }
+            }
+            else
+            {
+                var resultes = await JS.InvokeAsync<bool>("feildAlert");
+                if (resultes)
+                {
+                }
+            }
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    public void Dispose()
+    {
+        ServicesData.Callab -= StateHasChanged;
+    }
+}

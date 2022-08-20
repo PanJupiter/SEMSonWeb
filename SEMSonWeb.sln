@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEMSonWeb.Server", "SEMSonWeb\Server\SEMSonWeb.Server.csproj", "{8B60CCD6-38F0-41ED-82E4-BE2E64CC2B11}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEMSonWeb.Client", "SEMSonWeb\Client\SEMSonWeb.Client.csproj", "{8900FA24-AD52-47C9-BD4E-C14D76D267F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SEMSonWeb.Shared", "SEMSonWeb\Shared\SEMSonWeb.Shared.csproj", "{D3931912-EB5E-4FD7-BABF-9EB0A3F047E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BA7D574A-8711-43D6-926C-913A7C4B0427}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8B60CCD6-38F0-41ED-82E4-BE2E64CC2B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B60CCD6-38F0-41ED-82E4-BE2E64CC2B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B60CCD6-38F0-41ED-82E4-BE2E64CC2B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B60CCD6-38F0-41ED-82E4-BE2E64CC2B11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8900FA24-AD52-47C9-BD4E-C14D76D267F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8900FA24-AD52-47C9-BD4E-C14D76D267F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8900FA24-AD52-47C9-BD4E-C14D76D267F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8900FA24-AD52-47C9-BD4E-C14D76D267F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3931912-EB5E-4FD7-BABF-9EB0A3F047E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3931912-EB5E-4FD7-BABF-9EB0A3F047E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3931912-EB5E-4FD7-BABF-9EB0A3F047E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3931912-EB5E-4FD7-BABF-9EB0A3F047E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {95CDA2A9-74EE-4BE2-8792-A047669089D5}
+	EndGlobalSection
+EndGlobal

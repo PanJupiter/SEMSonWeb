@@ -1,0 +1,21 @@
+﻿body {
+}
+.stymem{
+    background-color: yellow;
+    margin-top: 25px;
+    height:40px;
+    border-radius:20px;
+    text-align: center;
+    font-size:large;
+    padding:7px ;
+}
+.conri{
+    float:right;
+    margin-right:23%;
+    font-weight:bolder;
+}
+.conle {
+    float: left;
+    margin-left: 23%;
+    font-weight: bolder;
+}

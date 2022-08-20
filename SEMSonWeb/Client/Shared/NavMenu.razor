@@ -1,0 +1,58 @@
+﻿@inject NavigationManager Navigation
+@using SEMSonWeb.Shared
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid @Menubar">
+        <a class="navbar-brand" href="">Sport</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <button class="menu" @onclick="Tagemenu"><span class="oi oi-menu text-white" aria-hidden="true"></span></button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column ">    
+        <div class="nav-item @Menubar px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home " aria-hidden="true"></span> <p>หน้าหลัก</p>
+            </NavLink>
+        </div>
+        <div class="nav-item @Menubar px-3">
+            <NavLink class="nav-link" href="Member">
+                <span class="oi oi-people" aria-hidden="true"></span> <p>จัดการสมาชิก</p>
+            </NavLink>
+        </div>
+        <div class="nav-item @Menubar px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-graph" aria-hidden="true"></span> <p>จัดการตำแหน่ง</p>
+            </NavLink>
+        </div>
+        <div class="nav-item @Menubar px-3">
+            <NavLink class="nav-link" href="Sport">
+                <span class="oi oi-dashboard" aria-hidden="true"></span> <p>จัดการอุปกรณ์กีฬา</p>
+            </NavLink>
+        </div>
+        <div class="nav-item @Menubar px-3">
+            <NavLink class="nav-link" href="dashboard">
+                <span class="oi oi-account-login" aria-hidden="true"></span> <p>Login</p>
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    [Parameter]
+    public EventCallback Tagemenu { get; set; }
+
+    [Parameter]
+    public string? Menubar { get; set; }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

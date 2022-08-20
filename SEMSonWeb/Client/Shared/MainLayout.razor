@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase
+
+
+<div class="page">
+    <div class="sidebar @stylebar">
+        <NavMenu Tagemenu=@Tagemenu Menubar=@stylebar/>
+    </div>
+    <main>
+        @*<div class="top-row px-4">
+            <span class="oi oi-menu text-black test" aria-hidden="true"></span>
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>*@
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+@code {
+    private int countbar { get; set; } = 0;
+    public string stylebar { get; set; } = string.Empty;
+
+    public void Tagemenu()
+    {
+        countbar++;
+        if ((countbar % 2) == 0)
+        {
+            stylebar = string.Empty;
+        }
+        else
+        {
+            stylebar = "move";
+        }
+        if(countbar == 4)
+        {
+            countbar = 0;
+        }
+        //Console.WriteLine(countbar);
+        //Console.WriteLine(stylebar);
+    }
+}

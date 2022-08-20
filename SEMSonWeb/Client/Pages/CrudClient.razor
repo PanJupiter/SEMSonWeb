@@ -1,0 +1,168 @@
+﻿
+@page "/Member/Add_Edit"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+ <div class ="container-fluid">
+        <div class = "row">
+            <div class = "col-md-3 col-sm-6 col-xs-12"> </div>        
+            <div class = "col-md-6 col-sm-6 col-xs-12">
+                <form @onsubmit="SubMem">
+                    @if (ServicesData.ActionCall.Contains("sign"))
+                    {
+                        <h3 class="mb-3 mt-3 text-center">เพิ่มสมาชิก</h3>
+                    }
+                    else
+                    {
+                        <h3 class="mb-3 mt-3 text-center">แก้ไขสมาชิก</h3>
+                    }
+                    <div class="mb-3 visually-hidden">
+                        <label class="col-sm-3 col-form-label">Id</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" @bind="ServicesData.SPClientUserX.PHUserCode"></div>
+                    </div>
+                    <div class="mb-3 visually-hidden">
+                        <label class="col-sm-3 col-form-label">Idp</label>
+                        <div class="col-sm-8"> <input type="text" class="form-control" @bind="ServicesData.SPClientUserX.PHProfileCode"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">สถานะ</label>
+                        <div class="col-sm-8"><select class="form-control" @bind="ServicesData.SPClientUserX.PHUserState">
+                            <option>@userdemo</option>
+                            <option>@admindemo</option>
+                        </select></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">ตำแหน่ง</label>
+                        <div class="col-sm-8"><select class="form-control" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHPosCode">
+                            @foreach(var pos in ServicesData.SPClientPosList)
+                            {
+                                <option value="@pos.PHPosCode">@pos.PHPosName</option>
+                            }
+                        </select></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">Username</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" placeholder="Enter your username" @bind="ServicesData.SPClientUserX.PHUserName"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">Password</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" placeholder="Enter your password" @bind="ServicesData.SPClientUserX.PHUserPassword"></div>
+                    </div>
+                    <div class="form-group row mb-3" >
+                        <label class="col-sm-3 col-form-label">คำนำหน้า</label>
+                        <div class="col-sm-8"><select class="form-control" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHPreCode">
+                            @foreach(var pre in ServicesData.SPClientPreList)
+                            {
+                                <option value="@pre.PHPreCode">@pre.PHPreName</option>
+                            }
+                        </select></div>
+                    </div>
+                    <div class="form-group row mb-3" >
+                        <label class="col-sm-3 col-form-label">ชื่อ</label>
+                        <div class="col-sm-8"><input type="text" class="form-control " placeholder="โปรดกรอกชื่อ" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfilefName"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">นามสกุล</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" placeholder="โปรดกรอกนามสกุล" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfilelName"></div>
+                    </div>
+                    <div class="form-group row mb-3" >
+                        <label class="col-sm-3 col-form-label">แผนก</label>
+                        <div class="col-sm-8">
+                        <select class="form-control" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHDepCode">
+                            @foreach(var dep in ServicesData.SPClientDepList)
+                            {
+                                <option value="@dep.PHDepCode">@dep.PHDepName</option>
+                            }
+                        </select></div>
+                    </div>
+                    @if(ServicesData.SPClientUserX.LSPClientProfile.PHPosCode == IDstu){
+                    }else{
+                    <div class="form-group row mb-3" >
+                        <label class="col-sm-3 col-form-label">ชั้น</label>
+                        <div class="col-sm-8">
+                        <select class="form-control" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHClassCode">
+                            @foreach(var cla in ServicesData.SPClientClassList)
+                        {
+                            <option value="@cla.PHClassCode">@cla.PHClassName</option>
+                        }
+                        </select></div>
+                    </div>
+                    <div class="form-group row mb-3" >
+                        <label class="col-sm-3 col-form-label">ห้อง</label>
+                        <div class="col-sm-8"><input type="number" class="form-control " placeholder="โปรดกรอกห้อง" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfileClassroom"></div>
+                    </div>
+                        <div class="form-group row mb-3">
+                            <label class="col-sm-3 col-form-label">รหัสนักศึกษา</label>
+                            <div class="col-sm-8"><input type="text" class="form-control" placeholder="โปรดกรอกรหัสนักศึกษา" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfileIDstudent"></div>
+                        </div>
+                    }
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">เลขบัตรประชาชน</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" placeholder="โปรดกรอกเลขบัตรประชาชน" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfileIDcard"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">เบอร์โทร</label>
+                        <div class="col-sm-8"><input type="number" class="form-control" placeholder="Enter your number" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfilePhone"></div>
+                        
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">อีเมล์</label>
+                        <div class="col-sm-8    "><input type="email" class="form-control" placeholder="Enter your email" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfileEmail"></div>
+                    </div>
+                    @*--------------------------------------------------------------------------------------*@
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">รูปภาพ</label>
+                        <div class="col-sm-8"><input class="form-control" type="file"></div>
+                    </div>
+                    <div class="mb-3">
+                        @if (ServicesData.ActionCall.Contains("sign"))
+                        {
+                            <button type="submit" class= "btn btn-primary">บันทึก</button>
+                        }
+                        else
+                        {
+                        <button type="button" class= "btn btn-success " @onclick="UpdateMember">แก้ไข</button>
+                        <button class= "btn btn-danger " style="margin-left:50px;" type="button" @onclick="CancleForm">ยกเลิก</button>
+                        }
+                    </div>
+                </form>
+                
+            </div>
+            <div class = "col-md-4 col-sm-4 col-xs-12"> </div>        
+        </div>
+    </div>
+@code {
+    public string userdemo { get; set; } = "user";
+    public string admindemo { get; set; } = "Adinistator";
+    public string IDstu { get; set; } = "POS-000001";
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPClientClass();
+        await ServicesData.GetDbSPClientDep();
+        await ServicesData.GetDbSPClientPos();
+        await ServicesData.GetDbSPClientPre();
+        await ServicesData.GetDbSPClientUser();
+    }
+    public async void SubMem()
+    {
+        var result = await JS.InvokeAsync<bool>("SaveMemberjs");
+        if (result)
+        {
+            await ServicesData.CreateDbSPClientUser(ServicesData.SPClientUserX);
+            Navigation.NavigateTo("Member");
+            ServicesData.ClearformUser();
+        }
+    }   
+    public async Task UpdateMember()
+    {
+        await ServicesData.UpdateDbSPClientUser(ServicesData.SPClientUserX);
+        Navigation.NavigateTo("Member");
+        ServicesData.ClearformUser();
+    }
+    public void CancleForm()
+    {
+        Navigation.NavigateTo("Member");
+        ServicesData.ClearformUser();
+    }
+}

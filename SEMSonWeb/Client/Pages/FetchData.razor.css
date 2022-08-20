@@ -1,0 +1,99 @@
+﻿body {
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    display: none;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 0px 0px 200px 0px;
+    overflow: hidden;
+}
+
+::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+    border-radius: 0px 200px 200px 0px;
+    overflow: hidden;
+}
+
+.Addbtn {
+    color: white;
+    background-color: rgb(7, 179, 21);
+    float: right;
+    width: 200px;
+    text-align: center;
+    margin-bottom: 0px;
+    border-radius: 5px;
+    border: thin;
+    height: 35px;
+}
+
+table, th, td {
+    border: 1px solid rgb(204, 207, 206);
+}
+
+.block_table {
+    float: right;
+    background-color: white;
+    height: 420px;
+    border-radius: 10px 10px 10px 10px;
+    border: 1px solid rgb(204, 207, 206);
+    overflow: auto;
+    background-color: rgb(255, 255, 255);
+    display: inline-block;
+    margin-top: 3px;
+    width: 50%;
+}
+
+    .block_table table {
+        width: 100%;
+    }
+
+        .block_table table thead {
+            background-color: darkred;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .block_table table tbody i {
+            position: static;
+        }
+
+
+
+.filter {
+    float: right;
+    width: 20px;
+    height: 25px;
+}
+
+    .filter .filters {
+        display: inline;
+        width: 200px;
+        position: absolute;
+        margin-top: 1rem;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        transform: translateX(-100%);
+        top: 15px;
+        visibility: hidden;
+    }
+
+    .filter:hover .filters {
+        visibility: visible;
+    }
+.boorr{
+    width:25%;
+    display:inline-block;
+    background-color: greenyellow;
+}
+.www{
+    min-width:125px;
+}
+.bbb{
+    min-width:95px;
+}

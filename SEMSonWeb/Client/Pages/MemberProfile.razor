@@ -1,0 +1,74 @@
+﻿@page "/Member"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+
+<h3>รายการสมาชิก</h3>
+<button class="Addbtn" @onclick="AddMember">เพิ่มสมาชิก</button>
+<div class="block_table">
+    <table class = "table">
+        <thead>
+            <tr>
+                <th class="text-center">รหัสนักศึกษา</th>
+                <th class="text-center">ชื่อ-นามสกุล</th>
+                <th class="text-center">ตำแหน่ง</th>
+                <th class="text-center">แผนก</th>
+                <th class="text-center">ชั้น</th>
+                <th class="text-center">ห้อง</th>
+                <th class="text-center">actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var user in ServicesData.SPClientUserList)
+            {
+                <tr>
+                    <td class="text-center">@user.LSPClientProfile?.PHProfileIDstudent</td>
+                    <td>@user.LSPClientProfile?.LSPClientPre?.PHPreName@user.LSPClientProfile?.PHProfilefName &nbsp;&nbsp;@user.LSPClientProfile?.PHProfilelName</td>
+                    <td class="text-center">@user.LSPClientProfile?.LSPClientPos?.PHPosName</td>
+                    <td class="text-center">@user.LSPClientProfile?.LSPClientDep?.PHDepName</td>
+                    <td class="text-center">@user.LSPClientProfile?.LSPClientClass?.PHClassName</td>
+                    <td class="text-center">@user.LSPClientProfile?.PHProfileClassroom</td>
+                    <td class="text-center">
+                        <button class = "btn-primary border border-thin" @onclick="() =>EditMembers(user)"><i class=" oi oi-pencil"></i></button>
+                        <button class = "btn-danger border border-thin" @onclick="() =>DeleteMember(user)"><i class=" oi oi-trash"></i></button>
+                    </td> 
+                </tr>
+            }
+        </tbody>
+    </table> 
+</div>
+@code {
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPClientUser();
+        ServicesData.Callab += StateHasChanged;
+    }
+    public void AddMember()
+    {
+        ServicesData.ClearformUser();
+        Navigation.NavigateTo("Member/Add_Edit");
+    }
+    public void EditMembers(SPClientUser user)
+    {
+        ServicesData.EditMember(new SPClientUser { PHUserCode = user.PHUserCode, PHProfileCode = user.PHProfileCode, PHUserName = user.PHUserName, PHUserPassword = user.PHUserPassword, PHUserState = user.PHUserState, LSPClientProfile = user.LSPClientProfile });
+        Navigation.NavigateTo("Member/Add_Edit");
+    }
+    public async void DeleteMember(SPClientUser user)
+    {
+        var result = await JS.InvokeAsync<bool>("DeleteMemberjs");
+        if (result)
+        {
+            if ((user.PHUserCode != null)&&(user.PHProfileCode != null)) 
+            {
+                await ServicesData.DeleteDbSPClientUser(user.PHUserCode, user.PHProfileCode);
+            } 
+        }
+    }
+    public void Dispose()
+    {
+         ServicesData.Callab -= StateHasChanged;
+    }
+}
