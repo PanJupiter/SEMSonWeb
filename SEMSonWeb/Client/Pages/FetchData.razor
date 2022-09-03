@@ -32,24 +32,14 @@
         <thead>   
             <tr>
                 <th class="www text-center">ชื่ออุปกรณ์</th>
-                <th class="www text-center">ประเภทกีฬา 
-                    <div class="filter"><i class="oi oi-project"></i>
-                        <div class="filters">
-                        <div class="input-group">
-                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fill"/>
-                        </div>
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillter">search</button>
-                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillter">clear</button>
-                        </div>
-                    </div></div></th>
+                <th class="www text-center">ประเภทกีฬา </th>
                 <th class="text-center">ถูกยืม</th>
                 <th class="text-center">คงเหลือ</th>
                 <th class="text-center">ต้องการยืม</th>
             </tr>
         </thead>
         <tbody>
-            @foreach(var speq in FilterSport)
+            @foreach(var speq in ServicesData.SPModelEquipList)
             {
                 <tr>
                     <td class="text-center">@speq.PHEquipName</td>
@@ -74,31 +64,56 @@
                 <th class="text-center">ว/ด/ป (ยืม)</th>
                 <th class="www text-center">คืน</th>
                 <th class="www text-center">ว/ด/ป (คืน)</th>
-                <th class="www text-center">Action</th>
+                <th class="www text-center">สถานะ</th>
             </tr>
         </thead>
         <tbody>
-            @foreach(var his in ServicesData.histories)
+            @*OrderByDescending*@
+            @foreach(var his in ServicesData.histories.OrderBy(p => p.SPClientWhenReturn))
             {
                 if (his.SPClientUsers.PHUserCode == IdUsercode)
                 {
-                    <tr>
-                        <td class="text-center">@his.PHEquipName</td>
-                        <td class="text-center">@his.PHequipBorrow</td>
-                        <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
-                        <td class="text-center">@his.PHequipReturn</td>
-                        <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/mm/yyyy")</td>
-                        <td class="text-center">
-                            @if(his.SPClientWhenReturn == null)
-                            {
-                                <button class ="btn btn-success"@onclick="()=>TurnEquip(his)">คืน</button>
-                            }
-                            else
-                            {
-                                <text>คืนแล้ว</text>
-                            }
-                        </td> 
-                    </tr>
+                    if (his.SPClientWhenReturn == null)
+                    {
+
+                        <tr style = "background-color:rgb(250, 247, 202);">
+                            <td class="text-center">@his.PHEquipName</td>
+                            <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>
+                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">@his.PHequipReturn @his.PHEquipUnit</td>
+                            <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">
+                                @if (his.SPClientWhenReturn == null)
+                                {
+                                    <text>ยังไม่คืน</text>
+                                }
+                                else
+                                {
+                                    <text>คืนแล้ว</text>
+                                }
+                            </td> 
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td class="text-center">@his.PHEquipName</td>
+                            <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>
+                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">@his.PHequipReturn @his.PHEquipUnit</td>
+                            <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">
+                                @if (his.SPClientWhenReturn == null)
+                                {
+                                    <text>ยังไม่คืน</text>
+                                }
+                                else
+                                {
+                                    <text>คืนแล้ว</text>
+                                }
+                            </td> 
+                        </tr>
+                    }
                 }
             }
         </tbody>
@@ -107,7 +122,6 @@
 @code {
     [Parameter]
     public string? IdUsercode { get; set; }
-
     public List<History> histories { get; set; } = new List<History>();
     private List<SPModelEquip> FilterSport { get; set; } = new();
     public string fill { get; set; } = string.Empty;
@@ -125,6 +139,7 @@
         await ServicesData.GetDbSPModelEquip();
         await ServicesData.GetDbSPClientUser();
         await ServicesData.GetDbSPHisAction();
+        ServicesData.histories.OrderBy(p => p.SPClientWhenReturn).ToList();
         FilterSport = ServicesData.SPModelEquipList.ToList();
         ServicesData.Callab += StateHasChanged;
     }
@@ -139,32 +154,12 @@
         FilterSport = ServicesData.SPModelEquipList.ToList();
     }
 
-    public async Task TurnEquip(History history)
-    {
-        var resultes = await JS.InvokeAsync<bool>("TurnEQjs");
-        if (resultes)
-        {
-            ServicesData.SPModelEquipX.PHEquipCode = history.PHEquipCode;
-            ServicesData.SPModelEquipX.PHEquipBorroww = history.PHequipBorrow;
-            await ServicesData.ReturnDbSPModelEquip(ServicesData.SPModelEquipX);
-
-            ServicesData.SPHisActionX.PHHisActionCode = history.PHHisActionCode;
-            ServicesData.SPHisActionX.PHequipReturn = history.PHequipBorrow;
-            await ServicesData.TurnDbSPHisAction(ServicesData.SPHisActionX);
-            FilterSport = ServicesData.SPModelEquipList.ToList();
-            ServicesData.SPHisActionX.PHHisActionCode = string.Empty;
-            ServicesData.SPModelEquipX.PHEquipCode = string.Empty;
-            ServicesData.SPHisActionX.PHequipReturn = 0;
-            ServicesData.SPModelEquipX.PHEquipBorroww = 0;
-        }
-    }
-
     private IJSObjectReference module;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender != true)
         {
-            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js"); 
         }
     }
     protected async void BorrowModal(string elementID,SPModelEquip speq)
@@ -230,7 +225,7 @@
             }
             else
             {
-                var resultes = await JS.InvokeAsync<bool>("feildAlert");
+                var resultes = await JS.InvokeAsync<bool>("feildMoreAlert");
                 if (resultes)
                 {
                 }

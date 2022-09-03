@@ -1,0 +1,164 @@
+﻿@page "/positions"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>รายการตำแหน่ง</h3>
+<button @onclick='eventArgs=>ShowModal("exampleModal")'class="Addbtn">เพิ่มตำแหน่ง</button>
+
+<div class="modal fade show " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none; background:#00000080; padding-top:10%;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+          <button type="button" @onclick='eventArgs=>HideModal("exampleModal")' class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form @onsubmit='eventArgs=>addPosModal("exampleModal")'>
+                <div class="visually-hidden">
+                    <label class="form-label ">Id</label>
+                    <input type="text" class="form-control" @bind="ServicesData.SPClientPosX.PHPosCode">
+                </div>
+                <div class="form-group mb-3" >
+                    @if(ServicesData.ActionPos == "one")
+                    {
+                        <label class="form-label mt-3"><b>เพิ่มตำแหน่ง</b></label>
+                    }
+                    else
+                    {
+                        <label class="form-label mt-3"><b>แก้ไขตำแหน่ง</b></label>
+                    }
+                    <input type="text" class="form-control " placeholder="กรอกชื่อตำแหน่ง" @bind="ServicesData.SPClientPosX.PHPosName">
+                </div>
+                    @if(ServicesData.ActionPos == "one")
+                    {
+                    <div class="float-end">
+                        <button  class= "btn btn-primary" type="submit">เพิ่ม</button>
+                    </div>
+                    }
+                    else
+                    {
+                    <div class="float-end">
+                        <button type="button" class= "btn btn-primary"  @onclick='eventArgs=>UpdatePos("exampleModal")'>แก้ไข</button>
+                    </div>
+                    }
+            </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="block_table">
+    <table class = "table">
+        <thead>   
+            <tr>
+                <th class="www text-center">ตำแหน่ง</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var speq in ServicesData.SPClientPosList)
+            {
+                <tr>
+                    <td class="text-center">@speq.PHPosName</td>
+                    <td class="text-center" style="width:500px;">
+                         <button class = "btn-primary border border-thin" @onclick='eventArgs=>EditPosModal(speq,"exampleModal")'><i class=" oi oi-pencil"></i></button>
+                        <button class = "btn-danger border border-thin" @onclick="()=>DeletePos(speq)"><i class=" oi oi-trash"></i></button>
+                    </td> 
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPClientPos();
+        ServicesData.Callab += StateHasChanged;
+    }
+    private IJSObjectReference module;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender != true)
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+        }
+    }
+    protected async void HideModal(string elementID)
+    {
+        if(module != null)
+        {
+            await module.InvokeAsync<string>("HideModal", elementID);
+            ServicesData.SPClientPosX.PHPosCode =string.Empty;
+            ServicesData.SPClientPosX.PHPosName =string.Empty;
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    protected async void ShowModal(string elementID)
+    {
+        if(module != null)
+        {
+            ServicesData.ActionPos = "one";
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+    }
+    protected async Task addPosModal(string elementID)
+    {
+        if(module != null)
+        {
+            var result = await JS.InvokeAsync<bool>("SaveMemberjs");
+            if (result)
+            {
+                await ServicesData.CreateDbSPClientPos(ServicesData.SPClientPosX);
+                ServicesData.SPClientPosX.PHPosCode =string.Empty;
+                ServicesData.SPClientPosX.PHPosName =string.Empty;
+
+                await module.InvokeAsync<string>("HideModal", elementID);
+            }
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    protected async Task EditPosModal(SPClientPos pos,string elementID)
+    {
+        if(module != null)
+        {   
+            ServicesData.EditPos(new SPClientPos{ PHPosCode = pos.PHPosCode, PHPosName = pos.PHPosName});
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    protected async Task UpdatePos(string elementID)
+    {
+        var result = await JS.InvokeAsync<bool>("UpdateMemberjs");
+        if (result)
+        {
+            await ServicesData.UpdateDbSPClientPos(ServicesData.SPClientPosX);
+            ServicesData.SPClientPosX.PHPosCode =string.Empty;
+            ServicesData.SPClientPosX.PHPosName =string.Empty;
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
+    public async Task DeletePos(SPClientPos pos)
+    {
+        var result = await JS.InvokeAsync<bool>("DeleteMemberjs");
+        if (result)
+        {
+            if(pos.PHPosCode != null)
+                await ServicesData.DeleteDbSPClientPos(pos.PHPosCode);
+        }
+    }
+}

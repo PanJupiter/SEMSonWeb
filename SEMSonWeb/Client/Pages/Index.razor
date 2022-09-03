@@ -1,9 +1,147 @@
-﻿@page "/"
+﻿@using System.Globalization
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
-<PageTitle>Index</PageTitle>
+<div class="container">
+    <div class="row my-3 ffff">
+        <div class="col-sm-12 col-lg-6">
+            <RadzenChart>
+                <RadzenDonutSeries Data="@ServicesData.SPModelEquipList" Title="จำนวน" CategoryProperty="PHEquipName" ValueProperty="PHEquipTotal">
+                    <TitleTemplate >
+                        <div class="rz-donut-content">
+                            <div>อุปกรณ์กีฬา</div> 
+                            <div>คงเหลือ</div>
+                        </div>
+                    </TitleTemplate>
+                </RadzenDonutSeries>
+            </RadzenChart>
+        </div>
+        <div class="col-sm-12 col-lg-6">
+            <RadzenChart >
+                    <RadzenDonutSeries Data="@ServicesData.SPModelEquipList" Title="จำนวน" CategoryProperty="PHEquipName" ValueProperty="PHEquipBorroww">
+                    <TitleTemplate>
+                        <div class="rz-donut-content">
+                            <div>อุปกรณ์กีฬา</div> 
+                            <div>ถูกยืม</div>
+                        </div>
+                    </TitleTemplate>
+                </RadzenDonutSeries>
+            </RadzenChart>
+        </div>
+    </div>
+</div>
+<h3 class="w-50 d-inline-block mt-3">รายการคงเหลือ</h3><h3 class="d-inline ms-3 mt-3">รายการยืม</h3>
 
-<h1>Hello, world!</h1>
+<div class="block_table">
+    <table class = "table">
+        <thead>   
+            <tr>
+                <th class="text-center">อุปกรณ์กีฬา
+                     <div class="filter"><i class="oi oi-project"></i>
+                        <div class="filters">
+                        <div class="input-group">
+                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fill"/>
+                        </div>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillter">search</button>
+                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillter">clear</button>
+                        </div>
+                    </div></div>
+                </th>
+                <th class="text-center">คงเหลือ</th>
+                <th class="text-center">หน่วย</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var speq in FilterSport)
+            {
+                <tr>
+                    <td class="text-center">@speq.PHEquipName</td>
+                    <td class="text-center">@speq.PHEquipTotal</td>
+                    <td class="text-center">@speq.PHEquipUnit</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<div class="block_table float-end">
+    <table class = "table">
+        <thead>   
+            <tr>
+                <th class="text-center">ผู้ยืม</th>
+                <th class="text-center">อุปกรณ์กีฬา
+                    <div class="filter"><i class="oi oi-project"></i>
+                        <div class="filters">
+                        <div class="input-group">
+                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fills"/>
+                        </div>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillters">search</button>
+                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillters">clear</button>
+                        </div>
+                    </div></div></th>
+                <th class="text-center">ว/ด/ป (ยืม)</th>
+                <th class="text-center">ถูกยืม</th>
+                <th class="text-center">หน่วย</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*OrderByDescending*@
+            @foreach(var his in FilterHis.OrderBy(p => p.SPClientWhenReturn))
+            {
+                    @if (his.SPClientWhenReturn == null)
+                    {
+                        <tr>
+                            <td class="text-center">@his.SPClientUsers.LSPClientProfile.PHProfilefName</td>
+                            <td class="text-center">@his.PHEquipName</td>
+                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">@his.PHequipBorrow</td>
+                            <td class="text-center">@his.PHEquipUnit</td>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+                        </tr>
+                    }
+            }
+        </tbody>
+    </table>
+</div>
+@code {
+    private List<SPModelEquip> FilterSport { get; set; } = new();
+    private List<History> FilterHis { get; set; } = new();
+    public string fill { get; set; } = string.Empty;
+    public string fills { get; set; } = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPModelEquip();
+        await ServicesData.GetDbSPClientUser();
+        await ServicesData.GetDbSPHisAction();
+        FilterSport = ServicesData.SPModelEquipList.ToList();
+        FilterHis = ServicesData.histories.ToList();
+        ServicesData.Callab += StateHasChanged;
+    }
+    public void fillter()
+    {
+        if(fill != string.Empty)
+            FilterSport = ServicesData.SPModelEquipList.Where(a => a.PHEquipName == fill).ToList();
+    }
+    public void Clearfillter()
+    {
+        fill = string.Empty;
+        FilterSport = ServicesData.SPModelEquipList.ToList();
+    }
+    public void fillters()
+    {
+        if(fills != string.Empty)
+             FilterHis = ServicesData.histories.Where(a => a.PHEquipName == fills).ToList();
+    }
+    public void Clearfillters()
+    {
+        fills = string.Empty;
+        FilterHis = ServicesData.histories.ToList();
+    }
+    public void Dispose()
+    {
+         ServicesData.Callab -= StateHasChanged;
+    }
+   
+}

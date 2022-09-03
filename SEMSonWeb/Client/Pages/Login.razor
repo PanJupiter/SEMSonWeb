@@ -1,4 +1,7 @@
-﻿@page "/login"
+﻿@page "/"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
      <style>
         @@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@1,300&family=Kdam+Thmor+Pro&family=Niramit:wght@200&family=Prompt:ital,wght@1,300&display=swap');
@@ -21,21 +24,19 @@
                       </div>
                       <br>
       
-                      <form>
-                        <p>Please login to your account</p>
+                      <form @onsubmit="GoDashBoard">
+                        <p>กรุณาเข้าสู่ระบบบัญชีของคุณ</p>
       
                         <div class="form-outline mb-4">
-                          <input type="email" id="form2Example11" class="form-control"
-                            placeholder="Username" />
+                          <input type="text" id="form2Example11" class="form-control" placeholder="บัญชีผู้ใช้งาน" required @bind="ServicesData.LoginID" />
                         </div>
       
                         <div class="form-outline mb-4">
-                          <input type="password" id="form2Example22" class="form-control" placeholder="Password"/>
+                          <input type="password" id="form2Example22" class="form-control" placeholder="รหัสผ่าน" required @bind="ServicesData.LoginPassword"/>
                         </div>
       
                         <div class="text-center pt-1 mb-5 pb-1">
-                          <button class="btn btn-primary btn-block mb-3" type="button">Log
-                            in</button>
+                          <button class="btn btn-primary btn-block mb-3" type="submit">เข้าสู่ระบบ</button>
                           
                         </div>
                       </form>
@@ -70,5 +71,33 @@
 </body>
 
 @code {
-
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPClientUser();
+    }
+    public async void GoDashBoard()
+    {
+        var sign = ServicesData.SPClientUserList.Find(v => v.PHUserName == ServicesData.LoginID && v.PHUserPassword == ServicesData.LoginPassword);
+        if (sign != null)
+        {
+            if (sign.PHUserState == "user")
+            {
+                Navigation.NavigateTo("dashboard");
+                ServicesData.DisplayMain = "visible";
+                var result = await JS.InvokeAsync<bool>("LoginSuccess");
+            }
+            else
+            {
+                Navigation.NavigateTo("Member");
+            }
+        }
+        else
+        {
+                ServicesData.LoginPassword = string.Empty;
+            var result = await JS.InvokeAsync<bool>("LoginFeild");
+            if (result)
+            {
+            }
+        }
+    }
 }

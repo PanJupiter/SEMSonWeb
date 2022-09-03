@@ -443,7 +443,7 @@ namespace SEMSonWeb.Server.Controllers
                 _context.SPClientPosdb?.Add(pos);
                 await _context.SaveChangesAsync();
             }
-            return NoContent();
+            return Ok(await GetSPClientPos());
         }
 
 

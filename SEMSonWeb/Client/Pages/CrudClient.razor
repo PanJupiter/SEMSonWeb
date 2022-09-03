@@ -156,9 +156,13 @@
     }   
     public async Task UpdateMember()
     {
-        await ServicesData.UpdateDbSPClientUser(ServicesData.SPClientUserX);
-        Navigation.NavigateTo("Member");
-        ServicesData.ClearformUser();
+        var result = await JS.InvokeAsync<bool>("UpdateMemberjs");
+        if (result)
+        {
+            await ServicesData.UpdateDbSPClientUser(ServicesData.SPClientUserX);
+            Navigation.NavigateTo("Member");
+            ServicesData.ClearformUser();
+        }
     }
     public void CancleForm()
     {

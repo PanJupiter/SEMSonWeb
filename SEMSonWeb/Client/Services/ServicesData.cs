@@ -10,6 +10,10 @@ namespace SEMSonWeb.Client.Services
         public event Action? Callab;
         public string ActionCall { get; set; } = "sign";
         public string ActionModel { get; set; } = "add";
+        public string ActionPos { get; set; } = "one";
+        public string DisplayMain { get; set; } = "visually-hidden";
+        public string LoginID { get; set; } = string.Empty;
+        public string LoginPassword { get; set; } = string.Empty;
         public SPClientUser SPClientUserX { get; set; } = new SPClientUser { LSPClientProfile = new SPClientProfile { LSPClientClass = new SPClientClass(), LSPClientDep = new SPClientDep(), LSPClientPos = new SPClientPos(), LSPClientPre = new SPClientPre() } };
         public SPClientProfile SPClientProfileX { get; set; } = new SPClientProfile { LSPClientPos = new SPClientPos() };
         public SPClientClass SPClientClassX { get; set; } = new SPClientClass();
@@ -170,7 +174,7 @@ namespace SEMSonWeb.Client.Services
         }
         public async Task UpdateDbSPClientPos(SPClientPos pos)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutPos", pos);
+            var result = await _http.PutAsJsonAsync($"api/Services/PutPos?id={pos.PHPosCode}", pos);
             await SetPos(result);
         }
         public async Task UpdateDbSPClientPre(SPClientPre pre)
@@ -261,6 +265,13 @@ namespace SEMSonWeb.Client.Services
             SPClientUserX.LSPClientProfile.PHProfilelName=user.LSPClientProfile.PHProfilelName;
             SPClientUserX.LSPClientProfile.PHProfileImg = user.LSPClientProfile.PHProfileImg;
             ActionCall = "edite";
+        }
+        public void EditPos(SPClientPos pos)
+        {
+            var result = SPClientPosList.Where(x => x.PHPosCode == pos.PHPosCode).ToList();
+            SPClientPosX.PHPosCode = pos.PHPosCode;
+            SPClientPosX.PHPosName = pos.PHPosName;
+            ActionPos = "two";
         }
         public void EditEquip(SPModelEquip equip)
         {
@@ -396,6 +407,7 @@ namespace SEMSonWeb.Client.Services
             {
                 PHEquipImg = p.PHEquipImg,
                 PHEquipName = p.PHEquipName,
+                PHEquipUnit = p.PHEquipUnit,
                 LSPModelSport = p.LSPModelSport,
                 PHequipBorrow = u.PHequipBorrow,
                 PHequipReturn = u.PHequipReturn,
@@ -413,6 +425,7 @@ namespace SEMSonWeb.Client.Services
                     PHEquipImg = p.PHEquipImg,
                     PHEquipCode = p.PHEquipCode,
                     PHEquipName = p.PHEquipName,
+                    PHEquipUnit = p.PHEquipUnit,
                     LSPModelSport = p.LSPModelSport,
                     PHequipBorrow = p.PHequipBorrow,
                     PHequipReturn = p.PHequipReturn,

@@ -27,10 +27,35 @@
     </div>
   </div>
 </div>
-
-<button class="btn btn-primary">หน้าหลัก</button>
-<button @onclick='eventArgs=>ShowModal("exampleModal")' class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#exampleModal">บันทึกการยืม-คืน</button>
-<button class="btn btn-success">ประวัติการยืม</button>
+<div class="modal fade show " id="TurnModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none; background:#00000080; padding-top:10%;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+          <button type="button" @onclick='eventArgs=>HideTModal("TurnModal")' class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form @onsubmit='eventArgs=>TurnHideModal("TurnModal")'>
+                <div class="visually-hidden">
+                    <label class="form-label ">Id</label>
+                    <input type="text" class="form-control">
+                </div>
+                <div class="form-group mb-3" >
+                    <label class="form-label mt-3"><b>บันทึกรายการคืนอุปกรณ์</b></label>
+                    <input type="text" class="form-control " placeholder="รหัสนักศึกษา หรือรหัสบัตรประชาชน" @bind="@IdUserTurn">
+                </div>
+                <div class="float-end">
+                        <button  class= "btn btn-primary" type="submit">ค้นหา</button>
+                </div>
+            </form>
+      </div>
+    </div>
+  </div>
+</div>
+<button class="btn btn-primary" @onclick="Dash">หน้าหลัก</button>
+<button @onclick='eventArgs=>ShowModal("exampleModal")' class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#exampleModal">บันทึกการยืม</button>
+<button @onclick='eventArgs=>ShowModal("TurnModal")'class="btn btn-success">บันทึกการคืน</button>
+@if((IdUserCode == string.Empty && IdUserTurn == string.Empty)||(IdUserCode == null && IdUserTurn == null))
+{
+    <Index />
+}
 @if(IdUserCode != null){
     <div class = "@checkIDdisplay ">
         @foreach(var speq in TakeUser)
@@ -39,7 +64,7 @@
             {   
                 if (speq.LSPClientProfile.PHProfileIDcard == IdUserCode || speq.LSPClientProfile.PHProfileIDstudent == IdUserCode)
                 {
-                        <p class="stymem">@speq.LSPClientProfile.LSPClientPre?.PHPreName@speq.LSPClientProfile.PHProfilefName @speq.LSPClientProfile.PHProfilelName &nbsp;&nbsp;&nbsp; แผนก @speq.LSPClientProfile.LSPClientDep?.PHDepName &nbsp;&nbsp;&nbsp;ชั้น @speq.LSPClientProfile.LSPClientClass?.PHClassName / @speq.LSPClientProfile.PHProfileClassroom</p>
+                        <p class="stymem">@speq.LSPClientProfile.PHProfileIDstudent&nbsp;&nbsp;&nbsp;@speq.LSPClientProfile.LSPClientPre?.PHPreName@speq.LSPClientProfile.PHProfilefName @speq.LSPClientProfile.PHProfilelName &nbsp;&nbsp;&nbsp; แผนก @speq.LSPClientProfile.LSPClientDep?.PHDepName &nbsp;&nbsp;&nbsp;ชั้น @speq.LSPClientProfile.LSPClientClass?.PHClassName / @speq.LSPClientProfile.PHProfileClassroom</p>
                         <div><span class="conle">ประวัติการยืม</span> <span class="conri">ยืมอุปกรณ์กีฬา</span></div>
 
                 }
@@ -48,15 +73,38 @@
         <FetchData IdUsercode=@IdUser/>
     </div>
 }
+@if(IdUserTurn != null){
+    <div class = "@checkTurndisplay align-center">
+        @foreach(var speq in TakeUser) 
+        {
+            if (speq.LSPClientProfile != null)
+            {   
+                if (speq.LSPClientProfile.PHProfileIDcard == IdUserTurn || speq.LSPClientProfile.PHProfileIDstudent == IdUserTurn)
+                {
+                        <p class="memborrow">@speq.LSPClientProfile.PHProfileIDstudent&nbsp;&nbsp;&nbsp;@speq.LSPClientProfile.LSPClientPre?.PHPreName@speq.LSPClientProfile.PHProfilefName @speq.LSPClientProfile.PHProfilelName &nbsp;&nbsp;&nbsp; แผนก @speq.LSPClientProfile.LSPClientDep?.PHDepName &nbsp;&nbsp;&nbsp;ชั้น @speq.LSPClientProfile.LSPClientClass?.PHClassName / @speq.LSPClientProfile.PHProfileClassroom</p>
+                        <div class="text-center" style="font-size:17px;font-weight:bolder;">บันทึกการคืน</div>
+
+                }
+            }
+        }
+        <div class="text-center">
+            <TurnEquip TableTurn =@TableTurn/>
+        </div>
+    </div>
+}
 
 
 @code {
     [Parameter]
     public string? IdUserCode { get; set; }
+    [Parameter]
+    public string? IdUserTurn { get; set; }
 
+    public string? TableTurn { get; set; }
     public string? IdUser { get; set; }
 
     public string? checkIDdisplay { get; set; } = "visually-hidden";
+    public string? checkTurndisplay { get; set; } = "visually-hidden";
 
     private List<SPClientUser> TakeUser { get; set; } = new();
     private SPClientUser  TakeUserX { get; set; } = new();
@@ -77,6 +125,17 @@
         {
             module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
         }
+    }
+    public void Dash()
+    {
+        IdUserCode = string.Empty;
+        IdUserTurn = string.Empty;
+        TableTurn = string.Empty;
+        IdUser = string.Empty;
+        checkIDdisplay = "visually-hidden"; 
+        checkTurndisplay = "visually-hidden"; 
+
+
     }
     protected async void ShowModal(string elementID)
     {
@@ -105,6 +164,21 @@
             await module.InvokeAsync<string>("HideModal", elementID);
         }
     }
+    protected async void HideTModal(string elementID)
+    {
+        if(module != null)
+        {
+            IdUserTurn = string.Empty;
+            TableTurn = string.Empty;
+            checkTurndisplay = "visually-hidden"; 
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
     protected async Task SaveHideModal(string elementID)
     {
         if(module != null)
@@ -120,6 +194,9 @@
                     {   
                         if (speq.LSPClientProfile.PHProfileIDcard == IdUserCode || speq.LSPClientProfile.PHProfileIDstudent == IdUserCode)
                         {
+                            IdUserTurn = string.Empty;
+                            TableTurn = string.Empty;
+                            checkTurndisplay = "visually-hidden"; 
                             IdUser = speq.PHUserCode;
                             await module.InvokeAsync<string>("HideModal", elementID);
                         }
@@ -144,8 +221,47 @@
             await module.InvokeAsync<string>("HideModal", elementID);
         }
     }
-    public void Contack(string iduser){
+    protected async Task TurnHideModal(string elementID)
+    {
+        if(module != null)
+        {   
+            var results = TakeUser.Where(a => a.LSPClientProfile?.PHProfileIDcard == IdUserTurn).ToList();
+            var resulted = TakeUser.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IdUserTurn).ToList();
+            if (results?.Count() == 1 || resulted?.Count() == 1 )
+            {
+                checkTurndisplay = "visually-visible";
+                foreach(var speq in TakeUser)
+                {
+                    if (speq.LSPClientProfile != null)
+                    {   
+                        if (speq.LSPClientProfile.PHProfileIDcard == IdUserTurn || speq.LSPClientProfile.PHProfileIDstudent == IdUserTurn)
+                        {
+                            IdUserCode = string.Empty;
+                            IdUser = string.Empty;
+                            checkIDdisplay = "visually-hidden"; 
+                            TableTurn = speq.PHUserCode;
+                            await module.InvokeAsync<string>("HideModal", elementID);
+                        }
+                    }
+                }
 
+            }
+            if (results?.Count() != 1 && resulted?.Count() != 1 )
+            {
+                var resultes = await JS.InvokeAsync<bool>("NotFoundAlert");
+                if (resultes)
+                {
+                    IdUserTurn = string.Empty;
+                    TableTurn = string.Empty;
+                    checkTurndisplay = "visually-hidden"; 
+                }
+            }
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
     }
     public void Dispose()
     {

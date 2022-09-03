@@ -6,6 +6,11 @@ namespace SEMSonWeb.Client.Services
         event Action? Callab;
         string ActionCall { get; set; }
         string ActionModel { get; set; }
+        string ActionPos { get; set; }
+        string DisplayMain { get; set; } 
+
+        string LoginID { get; set; }
+        string LoginPassword { get; set; }
         SPClientUser SPClientUserX { get; set; }
         SPClientProfile SPClientProfileX { get; set; }
         SPClientClass SPClientClassX { get; set; }
@@ -62,6 +67,7 @@ namespace SEMSonWeb.Client.Services
 
         void EditMember(SPClientUser user);
         void EditEquip(SPModelEquip equip);
+        void EditPos(SPClientPos pos);
 
         Task GetDbSPModelEquip();
         Task GetDbSPModelSport();

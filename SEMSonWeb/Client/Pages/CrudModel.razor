@@ -81,9 +81,13 @@
     }
     public async Task UpdateEquip()
     {
-        await ServicesData.UpdateDbSPModelEquip(ServicesData.SPModelEquipX);
-        Navigation.NavigateTo("Sport");
-        ServicesData.ClearformSport();
+        var result = await JS.InvokeAsync<bool>("UpdateMemberjs");
+        if (result)
+        {
+            await ServicesData.UpdateDbSPModelEquip(ServicesData.SPModelEquipX);
+            Navigation.NavigateTo("Sport");
+            ServicesData.ClearformSport();
+        }
     }
     public void CancleFormEquip()
     {
