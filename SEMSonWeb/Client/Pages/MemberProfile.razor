@@ -12,15 +12,55 @@
             <tr>
                 <th class="text-center">รหัสนักศึกษา</th>
                 <th class="text-center">ชื่อ-นามสกุล</th>
-                <th class="text-center">ตำแหน่ง</th>
-                <th class="text-center">แผนก</th>
-                <th class="text-center">ชั้น</th>
-                <th class="text-center">ห้อง</th>
+                <th class="text-center">ตำแหน่ง
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillterOne"></i>
+                        <div class="filtered @fillOne">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
+                                                Placeholder="Select..." Data=@ServicesData.SPClientPosList TextProperty="PHPosName" ValueProperty="PHPosCode" Change=@(args => OnChangeOne(args, "DropDown with placeholder")) />
+                            </RadzenCard>
+                        </div>
+                    </div></div>
+                </th>
+                <th class="text-center">แผนก
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillterTwo"></i>
+                        <div class="filtered @fillTwo">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
+                                                Placeholder="Select..." Data=@ServicesData.SPClientDepList TextProperty="PHDepName" ValueProperty="PHDepCode" Change=@(args => OnChangeTwo(args, "DropDown with placeholder")) />
+                            </RadzenCard>
+                        </div>
+                    </div></div>
+                </th>
+                <th class="text-center">ชั้น
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillterThr"></i>
+                        <div class="filtered @fillThr">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
+                                                Placeholder="Select..." Data=@ServicesData.SPClientClassList TextProperty="PHClassName" ValueProperty="PHClassCode" Change=@(PHClassCode => OnChangeThr(PHClassCode, "DropDown with placeholder")) />
+                            </RadzenCard>
+                        </div>
+                    </div></div>
+                </th>
+                <th class="text-center">ห้อง
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillterFou"></i>
+                        <div class="filtered @fillFou">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
+                                                Placeholder="Select..." Data=@ServicesData.SPClientProfileList TextProperty="PHProfileClassroom" ValueProperty="PHProfileClassroom" Change=@(PHProfileClassroom => OnChangeFou(PHProfileClassroom, "DropDown with placeholder")) />
+                            </RadzenCard>
+                        </div>
+                    </div></div>
+                </th>
                 <th class="text-center">actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach(var user in ServicesData.SPClientUserList)
+            @foreach(var user in FilterUser)
             {
                 <tr>
                     <td class="text-center">@user.LSPClientProfile?.PHProfileIDstudent</td>
@@ -39,11 +79,21 @@
     </table> 
 </div>
 @code {
+    private List<SPClientUser> FilterUser { get; set; } = new List<SPClientUser>();
 
+    public string fillOne { get; set; } = "visually-hidden";
+    public string fillTwo { get; set; } = "visually-hidden";
+    public string fillThr { get; set; } = "visually-hidden";
+    public string fillFou { get; set; } = "visually-hidden";
 
     protected override async Task OnInitializedAsync()
     {
         await ServicesData.GetDbSPClientUser();
+        await ServicesData.GetDbSPClientProfile();
+        await ServicesData.GetDbSPClientPos();
+        await ServicesData.GetDbSPClientDep();
+        await ServicesData.GetDbSPClientClass();
+        FilterUser = ServicesData.SPClientUserList.ToList();
         ServicesData.Callab += StateHasChanged;
     }
     public void AddMember()
@@ -66,6 +116,114 @@
                 await ServicesData.DeleteDbSPClientUser(user.PHUserCode, user.PHProfileCode);
             } 
         }
+    }
+    public void checkfillterOne()
+    {
+        //filled = "visually-hidden";
+
+        if(fillOne == "visually-visible")
+        {
+            fillOne = "visually-hidden";
+        }
+        else
+        {
+            fillOne = "visually-visible";
+        }
+    }
+    public void checkfillterTwo()
+    {
+        //filled = "visually-hidden";
+
+        if(fillTwo == "visually-visible")
+        {
+            fillTwo = "visually-hidden";
+        }
+        else
+        {
+            fillTwo = "visually-visible";
+        }
+    }
+    public void checkfillterThr()
+    {
+        //filled = "visually-hidden";
+
+        if(fillThr == "visually-visible")
+        {
+            fillThr = "visually-hidden";
+        }
+        else
+        {
+            fillThr = "visually-visible";
+        }
+    }
+    public void checkfillterFou()
+    {
+        //filled = "visually-hidden";
+
+        if(fillFou == "visually-visible")
+        {
+            fillFou = "visually-hidden";
+        }
+        else
+        {
+            fillFou = "visually-visible";
+        }
+    }
+    public void OnChangeOne(object value, string name)
+    {
+        fillOne = "visually-hidden";
+        var straOne = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+        if (straOne != null)
+        { 
+            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.LSPClientPos?.PHPosCode == straOne.ToString()).ToList();
+        }
+        else
+        {
+            FilterUser = ServicesData.SPClientUserList.ToList();
+        }
+        //Console.WriteLine($"{name} value changed to {stra}");
+    }
+    public void OnChangeTwo(object value, string name)
+    {
+        fillTwo = "visually-hidden";
+        var straTwo = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+        if (straTwo != null)
+        { 
+            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.LSPClientDep?.PHDepCode == straTwo.ToString()).ToList();
+        }
+        else
+        {
+            FilterUser = ServicesData.SPClientUserList.ToList();
+        }
+        //Console.WriteLine($"{name} value changed to {stra}");
+    }
+    public void OnChangeThr(object value, string name)
+    {
+        fillThr = "visually-hidden";
+        var straThr = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+        if (straThr != null)
+        { 
+            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.LSPClientClass?.PHClassCode == straThr.ToString()).ToList();
+        }
+        else
+        {
+            FilterUser = ServicesData.SPClientUserList.ToList();
+        }
+        //Console.WriteLine($"{name} value changed to {stra}");
+    }
+    public void OnChangeFou(object value, string name)
+    {
+        fillFou = "visually-hidden";
+        var straFou = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+        if (straFou != null)
+        { 
+            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.PHProfileClassroom == straFou.ToString()).ToList();
+        }
+        else
+        {
+            FilterUser = ServicesData.SPClientUserList.ToList();
+        }
+        //Console.WriteLine($"{name} value changed to {stra}");
     }
     public void Dispose()
     {

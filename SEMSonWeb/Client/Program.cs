@@ -1,5 +1,8 @@
 global using SEMSonWeb.Shared.Entities;
 global using SEMSonWeb.Shared;
+global using Microsoft.AspNetCore.Components.Authorization;
+global using Blazored.LocalStorage;
+
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -13,6 +16,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<IServicesData, ServicesData> ();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider> ();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();

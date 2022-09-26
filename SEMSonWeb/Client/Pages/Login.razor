@@ -1,13 +1,25 @@
 ﻿@page "/"
+@*@attribute [Authorize]*@
 @inject IServicesData ServicesData
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProvider
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
 
      <style>
         @@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@1,300&family=Kdam+Thmor+Pro&family=Niramit:wght@200&family=Prompt:ital,wght@1,300&display=swap');
         @@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@1,300&family=Kanit:wght@300&family=Kdam+Thmor+Pro&family=Niramit:wght@200&display=swap');
     </style>
 <body>
+    @*<AuthorizeView Roles="Iron Man">
+        <Authorized>
+            <span>Hello @context.User.Identity?.Name</span>
+        </Authorized>
+        <NotAuthorized>
+           <span>What's up</span>
+        </NotAuthorized>
+ </AuthorizeView>*@
     <section class="h-100 gradient-form" style="background-color: #eee;">
         <div class="container py-5 h-100">
           <div class="row d-flex justify-content-center align-items-center h-100">
@@ -71,6 +83,7 @@
 </body>
 
 @code {
+    UserDto user = new UserDto();
     protected override async Task OnInitializedAsync()
     {
         await ServicesData.GetDbSPClientUser();
@@ -80,15 +93,30 @@
         var sign = ServicesData.SPClientUserList.Find(v => v.PHUserName == ServicesData.LoginID && v.PHUserPassword == ServicesData.LoginPassword);
         if (sign != null)
         {
+            if (sign.PHUserCode != null)
+                user.UserName = sign.PHUserCode;
+
+            user.Password = ServicesData.LoginPassword;
+            var resultLog = await Http.PostAsJsonAsync("api/Services/login",user);
+            var token = await resultLog.Content.ReadAsStringAsync();
+            //Console.WriteLine(token);
+            await LocalStorage.SetItemAsync("token", token);
             if (sign.PHUserState == "user")
             {
-                Navigation.NavigateTo("dashboard");
-                ServicesData.DisplayMain = "visible";
+                Navigation.NavigateTo("dashboarduser");
+                //Navigation.NavigateTo($"{sign.PHUserCode}/dashboard");
+                
+                //ServicesData.DisplayMain = "visible";
+                //ServicesData.ActionUser = "visible";
+                //ServicesData.ActionControl ="visually-hidden";
                 var result = await JS.InvokeAsync<bool>("LoginSuccess");
             }
             else
             {
-                Navigation.NavigateTo("Member");
+                //ServicesData.ActionControl = "visible";
+                //ServicesData.ActionUser ="visually-hidden";
+                //Navigation.NavigateTo("dashboard");
+                Navigation.NavigateTo("dashboard");
             }
         }
         else

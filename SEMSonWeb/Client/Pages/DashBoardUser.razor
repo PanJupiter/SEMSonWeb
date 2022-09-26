@@ -1,0 +1,128 @@
+﻿@page "/DashBoardUser"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+
+
+
+<button class="btn btn-primary bbaagg" @onclick="Dash">ประวัติยืม-คืน</button>
+<button class="btn btn-primary bbaayy" @onclick="Clear">อุปกรณ์กีฬา</button>
+
+@if(Dashhq == null)
+{
+    <h3 class ="mt-3 mb-4">รายการยืม-คืน</h3>
+    <div class="block_table">
+        <table class = "table">
+            <thead>   
+                <tr>
+                    <th class="text-center">อุปกรณ์</th>
+                    <th class="text-center">ยืม</th>
+                    <th class="text-center">ว/ด/ป (ยืม)</th>
+                    <th class="www text-center">คืน</th>
+                    <th class="www text-center">ว/ด/ป (คืน)</th>
+                    <th class="www text-center">สถานะ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @*OrderByDescending*@
+                @foreach(var his in ServicesData.histories.OrderBy(p => p.SPClientWhenReturn))
+                {
+                    if (his.SPClientUsers.PHUserCode == IdUsercode)
+                    {
+                        if (his.SPClientWhenReturn == null)
+                        {
+
+                            <tr style = "background-color:rgb(250, 247, 202);">
+                                <td class="text-center">@his.PHEquipName</td>
+                                <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>
+                                <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">@his.PHequipReturn @his.PHEquipUnit</td>
+                                <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">
+                                    @if (his.SPClientWhenReturn == null)
+                                    {
+                                        <text>ยังไม่คืน</text>
+                                    }
+                                    else
+                                    {
+                                        <text>คืนแล้ว</text>
+                                    }
+                                </td> 
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="text-center">@his.PHEquipName</td>
+                                <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>
+                                <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">@his.PHequipReturn @his.PHEquipUnit</td>
+                                <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">
+                                    @if (his.SPClientWhenReturn == null)
+                                    {
+                                        <text>ยังไม่คืน</text>
+                                    }
+                                    else
+                                    {
+                                        <text>คืนแล้ว</text>
+                                    }
+                                </td> 
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+@if (Dashhq != null)
+{
+    <h3 class ="mt-3 mb-4">รายการอุปกรณ์กีฬาคงเหลือ</h3>
+    <div class="block_table">
+        <table class = "table">
+            <thead>   
+                <tr>
+                    <th class="www text-center">ชื่ออุปกรณ์</th>
+                    <th class="www text-center">ประเภทกีฬา </th>
+                    <th class="text-center">ถูกยืม</th>
+                    <th class="text-center">คงเหลือ</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var speq in ServicesData.SPModelEquipList)
+                {
+                    <tr>
+                        <td class="text-center">@speq.PHEquipName</td>
+                        <td class="text-center">@speq.LSPModelSport?.PHSportName</td>
+                        <td class="text-center">@speq.PHEquipBorroww @speq.PHEquipUnit</td>
+                        <td class="text-center">@speq.PHEquipTotal @speq.PHEquipUnit</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+@code {
+    public string? IdUsercode { get; set; }
+    public List<History> histories { get; set; } = new List<History>();
+    public string? Dashhq { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPModelEquip();
+        await ServicesData.GetDbSPClientUser();
+        await ServicesData.GetDbSPHisAction();
+        ServicesData.histories.OrderBy(p => p.SPClientWhenReturn).ToList();
+        IdUsercode = (await LocalStorage.GetItemAsStringAsync("token")).Replace("\"", "");
+        ServicesData.Callab += StateHasChanged;
+    }
+    public void Dash()
+    {
+        Dashhq = null;
+    }
+    public void Clear()
+    {
+        Dashhq = "S";
+    }
+}

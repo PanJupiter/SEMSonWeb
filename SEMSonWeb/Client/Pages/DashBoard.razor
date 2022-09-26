@@ -1,9 +1,9 @@
 ﻿@page "/dashboard"
-@page "/dashboard/{IdUserCode}"
+@*@page "/{IdUserLog}/dashboard"*@
+@*@page "/dashboard/{IdUserCode}"*@
 @inject IServicesData ServicesData
 @inject NavigationManager Navigation
 @inject IJSRuntime JS;
-
 
 <div class="modal fade show " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none; background:#00000080; padding-top:10%;">
   <div class="modal-dialog">
@@ -49,10 +49,10 @@
     </div>
   </div>
 </div>
-<button class="btn btn-primary" @onclick="Dash">หน้าหลัก</button>
-<button @onclick='eventArgs=>ShowModal("exampleModal")' class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#exampleModal">บันทึกการยืม</button>
-<button @onclick='eventArgs=>ShowModal("TurnModal")'class="btn btn-success">บันทึกการคืน</button>
-@if((IdUserCode == string.Empty && IdUserTurn == string.Empty)||(IdUserCode == null && IdUserTurn == null))
+<button class="btn btn-primary bbaagg" @onclick="Dash">หน้าหลัก</button>
+<button @onclick='eventArgs=>ShowModal("exampleModal")' class="btn text-white bbaacc" data-bs-toggle="modal" data-bs-target="#exampleModal">บันทึกการยืม</button>
+<button @onclick='eventArgs=>ShowModal("TurnModal")'class="btn btn-primary bbaayy">บันทึกการคืน</button>
+@if((IdUserCode == string.Empty && IdUserTurn == string.Empty)||(IdUserCode == null && IdUserTurn == null)||(IdUserCode == string.Empty && IdUserTurn == null)||(IdUserCode == null && IdUserTurn == string.Empty))
 {
     <Index />
 }
@@ -96,6 +96,8 @@
 
 @code {
     [Parameter]
+    public string? IdUserLog { get; set; }
+    [Parameter]
     public string? IdUserCode { get; set; }
     [Parameter]
     public string? IdUserTurn { get; set; }
@@ -134,8 +136,6 @@
         IdUser = string.Empty;
         checkIDdisplay = "visually-hidden"; 
         checkTurndisplay = "visually-hidden"; 
-
-
     }
     protected async void ShowModal(string elementID)
     {

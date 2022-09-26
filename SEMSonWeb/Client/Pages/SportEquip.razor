@@ -11,23 +11,23 @@
             <tr>
                 <th class="text-center">อุปกรณ์กีฬา</th>
                 <th class="text-center">ประเภทกีฬา 
-                    <div class="filter"><i class="oi oi-project"></i>
-                        <div class="filters">
-                        <div class="input-group">
-                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fill"/>
+                     <div class="filter"><i class="oi oi-project" @onclick="checkfillters"></i>
+                        <div class="filtered @filled">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
+                                                Placeholder="Select..." Data=@ServicesData.SPModelSportList TextProperty="PHSportName" ValueProperty="PHSportCode" Change=@(args => OnChange(args, "DropDown with placeholder")) />
+                            </RadzenCard>
                         </div>
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillter">search</button>
-                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillter">clear</button>
-                        </div>
-                    </div></div></th>
+                    </div></div>
+                    </th>
                 <th class="text-center">จำนวน</th>
                 <th class="text-center">หน่วย</th>
                 <th class="text-center">actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach(var speq in FilterSport)
+            @foreach(var speq in FilterSport.ToList())
             {
                 <tr>
                     <td class="text-center">@speq.PHEquipName</td>
@@ -44,13 +44,48 @@
     </table>
 </div>
 @code {
-    private List<SPModelEquip> FilterSport { get; set; } = new();
-    public string fill { get; set; } = string.Empty;
+    private List<SPModelEquip> FilterSport { get; set; } = new List<SPModelEquip>();
+    public string filled { get; set; } = "visually-hidden";
+    //public string fill { get; set; } = string.Empty;
+    //public string filleds { get; set; } = "visually-hidden";
     protected override async Task OnInitializedAsync()
     {
         await ServicesData.GetDbSPModelEquip();
-        ServicesData.Callab += StateHasChanged;
+        await ServicesData.GetDbSPModelSport();
+        ServicesData.SPModelEquipList.ToList();
+
         FilterSport = ServicesData.SPModelEquipList.ToList();
+        ServicesData.Callab += StateHasChanged;
+    }
+    public void checkfillters()
+    {
+        //filleds = "visually-hidden";
+
+        if(filled == "visually-visible")
+        {
+            filled = "visually-hidden";
+        }
+        else
+        {
+            filled = "visually-visible";
+        }
+    }
+    public void OnChange(object value, string name)
+    {
+        
+        var spid = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+
+        if (spid != null)
+        { 
+            filled = "visually-hidden";
+            FilterSport = ServicesData.SPModelEquipList.Where(a => a.PHSportCode == spid.ToString()).ToList();
+        }
+        else
+        {
+            filled = "visually-hidden";
+            FilterSport = ServicesData.SPModelEquipList.ToList();
+        }
+        Console.WriteLine(spid);
     }
     public void AddSport()
     {
@@ -78,14 +113,14 @@
     {
          ServicesData.Callab -= StateHasChanged;
     }
-    public void fillter()
-    {
-        if(fill != string.Empty)
-            FilterSport = ServicesData.SPModelEquipList.Where(a => a.LSPModelSport?.PHSportName == fill).ToList();
-    }
-    public void Clearfillter()
-    {
-        fill = string.Empty;
-        FilterSport = ServicesData.SPModelEquipList.ToList();
-    }
+    //public void fillter()
+    //{
+    //    if(fill != string.Empty)
+    //        FilterSport = ServicesData.SPModelEquipList.Where(a => a.LSPModelSport?.PHSportName == fill).ToList();
+    //}
+    //public void Clearfillter()
+    //{
+    //    fill = string.Empty;
+    //    FilterSport = ServicesData.SPModelEquipList.ToList();
+    //}
 }

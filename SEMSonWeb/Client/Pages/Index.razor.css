@@ -50,7 +50,7 @@ table, th, td {
     }
 
         .block_table table thead {
-            background-color: darkred;
+            background-color: #1821ac;
             color: white;
             position: sticky;
             top: 0;
@@ -83,6 +83,15 @@ table, th, td {
 
     .filter:hover .filters {
         visibility: visible;
+    }
+    .filter .filtered {
+        display: inline;
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        transform: translateX(-100%);
+        transform: translateY(10%);
+        top: 15px;
     }
 .ffff {
     margin-left:-150px;

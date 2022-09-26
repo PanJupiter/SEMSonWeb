@@ -5,8 +5,10 @@
 <div class="page">
     @if (Navigation.Uri != Navigation.BaseUri)
     {
-    <div class="sidebar @stylebar">
-        <NavMenu Tagemenu=@Tagemenu Menubar=@stylebar/>
+    @*<div class="sidebar @stylebar">*@
+    <div class="sidebar">
+        @*<NavMenu Tagemenu=@Tagemenu Menubar=@stylebar/>*@
+        <NavMenu />
     </div>
     }
     <main>
@@ -20,30 +22,30 @@
         </article>
     </main>
 </div>
-@code {
+@*@code {
     //https://stackoverflow.com/questions/50102726/get-current-url-in-a-blazor-component
-    //[Inject]
-    //public NavigationManager MyNavigationManager {get; set;} = default!;
+    ///[Inject]
+    ///public NavigationManager MyNavigationManager {get; set;} = default!;
 
-    private int countbar { get; set; } = 0;
-    public string stylebar { get; set; } = string.Empty;
+                //private int countbar { get; set; } = 0;
+    ///public string stylebar { get; set; } = string.Empty;
 
-    public void Tagemenu()
-    {
-        countbar++;
-        if ((countbar % 2) == 0)
-        {
-            stylebar = string.Empty;
-        }
-        else
-        {
-            stylebar = "move";
-        }
-        if(countbar == 4)
-        {
-            countbar = 0;
-        }
-        //Console.WriteLine(countbar);
-        //Console.WriteLine(stylebar);
-    }
-}
+    //public void Tagemenu()
+    //{
+    //    countbar++;
+    //    if ((countbar % 2) == 0)
+    //    {
+    //        //stylebar = string.Empty;
+    //    }
+    //    else
+    //    {
+    //        //stylebar = "move";
+    //    }
+    //    if(countbar == 4)
+    //    {
+    //        countbar = 0;
+    //    }
+    //    //Console.WriteLine(countbar);
+    //    //Console.WriteLine(stylebar);
+    //}
+}*@

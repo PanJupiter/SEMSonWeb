@@ -44,8 +44,8 @@
                 <tr>
                     <td class="text-center">@speq.PHEquipName</td>
                     <td class="text-center">@speq.LSPModelSport?.PHSportName</td>
-                    <td class="text-center">@speq.PHEquipBorroww</td>
-                    <td class="text-center">@speq.PHEquipTotal</td>
+                    <td class="text-center">@speq.PHEquipBorroww @speq.PHEquipUnit</td>
+                    <td class="text-center">@speq.PHEquipTotal @speq.PHEquipUnit</td>
                     <td class="text-center">
                         <button class ="btn btn-success" @onclick='eventArgs=>BorrowModal("TakeModal",speq)'>ยืม</button>
                     </td> 
@@ -79,9 +79,9 @@
                         <tr style = "background-color:rgb(250, 247, 202);">
                             <td class="text-center">@his.PHEquipName</td>
                             <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>
-                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@his.PHequipReturn @his.PHEquipUnit</td>
-                            <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">
                                 @if (his.SPClientWhenReturn == null)
                                 {
@@ -99,9 +99,9 @@
                         <tr>
                             <td class="text-center">@his.PHEquipName</td>
                             <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>
-                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@his.PHequipReturn @his.PHEquipUnit</td>
-                            <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/mm/yyyy")</td>
+                            <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">
                                 @if (his.SPClientWhenReturn == null)
                                 {

@@ -4,6 +4,8 @@ namespace SEMSonWeb.Client.Services
     public interface IServicesData
     {
         event Action? Callab;
+        string ActionControl { get; set; }
+        string ActionUser { get; set; }
         string ActionCall { get; set; }
         string ActionModel { get; set; }
         string ActionPos { get; set; }
@@ -45,7 +47,7 @@ namespace SEMSonWeb.Client.Services
         Task CreateDbSPClientUser(SPClientUser user);
         Task CreateDbSPClientClass(SPClientClass cla);
         Task CreateDbSPClientDep(SPClientDep dep);
-        Task CreateDbSPClientPos(SPClientPos pos);
+        Task CreateDbSPClientPos(SPClientPos pos        );
         Task CreateDbSPClientPre(SPClientPre pre);
 
 

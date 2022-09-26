@@ -44,12 +44,44 @@
     .block_table table {
         width:100%;
     }
-    .block_table table thead {
-        background-color: darkred;
-        color: white;
-        position: sticky;
-        top:0;
-    }
+        .block_table table thead {
+            background-color: #1821ac;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
         .block_table table tbody i {
             position:static ;
         }
+.filter {
+    float: right;
+    width: 20px;
+    height: 25px;
+}
+
+    .filter .filters {
+        display: inline;
+        width: 200px;
+        position: absolute;
+        margin-top: 1rem;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        transform: translateX(-100%);
+        top: 15px;
+        visibility: hidden;
+    }
+
+    .filter:hover .filters {
+        visibility: visible;
+    }
+
+    .filter .filtered {
+        display: inline;
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+        transform: translateX(-100%);
+        transform: translateY(10%);
+        top: 15px;
+    }

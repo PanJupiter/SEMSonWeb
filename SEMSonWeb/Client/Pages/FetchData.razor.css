@@ -52,7 +52,7 @@ table, th, td {
     }
 
         .block_table table thead {
-            background-color: darkred;
+            background-color: #1821ac;
             color: white;
             position: sticky;
             top: 0;

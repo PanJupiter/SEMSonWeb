@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SEMSonWeb.Shared;
+using System.Net;
 
 namespace SEMSonWeb.Server.Controllers
 {
@@ -9,11 +11,20 @@ namespace SEMSonWeb.Server.Controllers
     public class ServicesController : ControllerBase
     {
         private readonly DataContext _context;
-        public ServicesController(DataContext context)
+        private readonly IWebHostEnvironment _env;
+        public ServicesController(DataContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
-
+        
+        [HttpPost("login")]
+        public async Task<ActionResult<string>>Login(UserDto request)
+        {
+            string token = request.UserName;
+            await _context.SPClientUserdb.ToListAsync();
+            return token;
+        }
         [HttpGet("GetUser")]
         public async Task<ActionResult<List<SPClientUser>>> GetDbSPClientUser()
         {
@@ -40,7 +51,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfileClassroom = a.LSPClientProfile.PHProfileClassroom,
                             PHProfileCode = a.LSPClientProfile.PHProfileCode,
                             PHProfileEmail = a.LSPClientProfile.PHProfileEmail,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHProfilefName = a.LSPClientProfile.PHProfilefName,
                             PHProfileIDcard = a.LSPClientProfile.PHProfileIDcard,
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
@@ -77,7 +89,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfileCode = a.LSPClientProfile.PHProfileCode,
                             PHProfileEmail = a.LSPClientProfile.PHProfileEmail,
                             PHProfilefName = a.LSPClientProfile.PHProfilefName,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHProfileIDcard = a.LSPClientProfile.PHProfileIDcard,
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
                             PHProfilelName = a.LSPClientProfile.PHProfilelName,
@@ -115,7 +128,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfilefName = a.LSPClientProfile.PHProfilefName,
                             PHProfileIDcard = a.LSPClientProfile.PHProfileIDcard,
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHProfilelName = a.LSPClientProfile.PHProfilelName,
                             PHProfilePhone = a.LSPClientProfile.PHProfilePhone,
                             PHwhenCreate = a.LSPClientProfile.PHwhenCreate,
@@ -153,7 +167,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
                             PHProfilelName = a.LSPClientProfile.PHProfilelName,
                             PHProfilePhone = a.LSPClientProfile.PHProfilePhone,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHwhenCreate = a.LSPClientProfile.PHwhenCreate,
                             PHwhenEdit = a.LSPClientProfile.PHwhenEdit,
                             PHWhoCreate = a.LSPClientProfile.PHWhoCreate,
@@ -188,7 +203,8 @@ namespace SEMSonWeb.Server.Controllers
                         PHProfilefName = a.PHProfilefName,
                         PHProfileIDcard = a.PHProfileIDcard,
                         PHProfileIDstudent = a.PHProfileIDstudent,
-                        PHProfileImg = a.PHProfileImg,
+                        PHProfileNameImg = a.PHProfileNameImg,
+                        PHProfileStorageImg = a.PHProfileStorageImg,
                         PHProfilelName = a.PHProfilelName,
                         PHProfilePhone = a.PHProfilePhone,
                         PHwhenCreate = a.PHwhenCreate,
@@ -214,7 +230,8 @@ namespace SEMSonWeb.Server.Controllers
                         PHProfilefName = a.PHProfilefName,
                         PHProfileIDcard = a.PHProfileIDcard,
                         PHProfileIDstudent = a.PHProfileIDstudent,
-                        PHProfileImg = a.PHProfileImg,
+                        PHProfileNameImg = a.PHProfileNameImg,
+                        PHProfileStorageImg = a.PHProfileStorageImg,
                         PHProfilelName = a.PHProfilelName,
                         PHProfilePhone = a.PHProfilePhone,
                         PHwhenCreate = a.PHwhenCreate,
@@ -242,7 +259,8 @@ namespace SEMSonWeb.Server.Controllers
                         PHProfileIDstudent = a.PHProfileIDstudent,
                         PHProfilelName = a.PHProfilelName,
                         PHProfilePhone = a.PHProfilePhone,
-                        PHProfileImg = a.PHProfileImg,
+                        PHProfileNameImg = a.PHProfileNameImg,
+                        PHProfileStorageImg = a.PHProfileStorageImg,
                         PHwhenCreate = a.PHwhenCreate,
                         PHwhenEdit = a.PHwhenEdit,
                         PHWhoCreate = a.PHWhoCreate,
@@ -267,7 +285,8 @@ namespace SEMSonWeb.Server.Controllers
                         PHProfileIDcard = a.PHProfileIDcard,
                         PHProfileIDstudent = a.PHProfileIDstudent,
                         PHProfilelName = a.PHProfilelName,
-                        PHProfileImg = a.PHProfileImg,
+                        PHProfileNameImg = a.PHProfileNameImg,
+                        PHProfileStorageImg = a.PHProfileStorageImg,
                         PHProfilePhone = a.PHProfilePhone,
                         PHwhenCreate = a.PHwhenCreate,
                         PHwhenEdit = a.PHwhenEdit,
@@ -344,7 +363,28 @@ namespace SEMSonWeb.Server.Controllers
             }
             return NoContent();
         }*/
+        [HttpPost("ImageAdd")]
+        public async Task<ActionResult<List<SPClientUser>>> UploadImage(List<IFormFile> files)
+        {
+            List<SPClientUser> users = new List<SPClientUser>();
 
+            foreach(var file in files)
+            {
+                var uploadResult = new SPClientUser { LSPClientProfile = new SPClientProfile()};
+                string trustedFileNameForFileStorage;
+                var untrustedFileName = file.FileName;
+                uploadResult.LSPClientProfile.PHProfileNameImg = untrustedFileName;
+                //var trustedFileNameForDisplay = WebUtility.HtmlEncode(untrustedFileName);
+
+                trustedFileNameForFileStorage = Path.GetRandomFileName();
+                var path = Path.Combine(_env.ContentRootPath,"uploads",trustedFileNameForFileStorage);
+
+                await using FileStream fs = new(path, FileMode.Create);
+                await file.CopyToAsync(fs);
+                uploadResult.LSPClientProfile.PHProfileStorageImg = trustedFileNameForFileStorage;
+                users.Add(uploadResult);
+            }return Ok(users);
+        }
         [HttpPost("PostUser")]
         public async Task<ActionResult<List<SPClientUser>>> CreatePrf(SPClientUser member)
         {
@@ -360,12 +400,12 @@ namespace SEMSonWeb.Server.Controllers
                 var newCodeUser = $"USE-{xvUserCode.ToString().PadLeft(6, '0')}";
 
                 //  prf.XVPrfCode = newCode;
-
                 member.PHUserCode = newCodeUser;
                 member.PHUserwhenCreate= DateTime.Now;
                 member.PHUserwhenEdit = null;
                 if (member.LSPClientProfile != null)
                 {
+                    
                     member.LSPClientProfile.PHProfileCode = newCode;
                     member.LSPClientProfile.PHwhenCreate = DateTime.Now;
                     member.LSPClientProfile.PHwhenEdit= null ;
@@ -375,10 +415,6 @@ namespace SEMSonWeb.Server.Controllers
                     member.LSPClientProfile.LSPClientPos = null;
                     member.LSPClientProfile.LSPClientPre = null;
                 }
-
-
-
-
 
                 _context.SPClientUserdb?.Add(member);
                 await _context.SaveChangesAsync();
@@ -470,7 +506,8 @@ namespace SEMSonWeb.Server.Controllers
                 data.LSPClientProfile.PHDepCode = member.LSPClientProfile.PHDepCode;
                 data.LSPClientProfile.PHPosCode = member.LSPClientProfile.PHPosCode;
                 data.LSPClientProfile.PHPreCode = member.LSPClientProfile.PHPreCode;
-                data.LSPClientProfile.PHProfileImg = member.LSPClientProfile.PHProfileImg;
+                data.LSPClientProfile.PHProfileNameImg = member.LSPClientProfile.PHProfileNameImg;
+                data.LSPClientProfile.PHProfileStorageImg = member.LSPClientProfile.PHProfileStorageImg;
                 data.LSPClientProfile.PHProfilefName = member.LSPClientProfile.PHProfilefName;
                 data.LSPClientProfile.PHProfilelName = member.LSPClientProfile.PHProfilelName;
             }
@@ -620,7 +657,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfileClassroom = a.LSPClientProfile.PHProfileClassroom,
                             PHProfileCode = a.LSPClientProfile.PHProfileCode,
                             PHProfileEmail = a.LSPClientProfile.PHProfileEmail,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHProfilefName = a.LSPClientProfile.PHProfilefName,
                             PHProfileIDcard = a.LSPClientProfile.PHProfileIDcard,
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
@@ -657,7 +695,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfileCode = a.LSPClientProfile.PHProfileCode,
                             PHProfileEmail = a.LSPClientProfile.PHProfileEmail,
                             PHProfilefName = a.LSPClientProfile.PHProfilefName,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHProfileIDcard = a.LSPClientProfile.PHProfileIDcard,
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
                             PHProfilelName = a.LSPClientProfile.PHProfilelName,
@@ -695,7 +734,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfilefName = a.LSPClientProfile.PHProfilefName,
                             PHProfileIDcard = a.LSPClientProfile.PHProfileIDcard,
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHProfilelName = a.LSPClientProfile.PHProfilelName,
                             PHProfilePhone = a.LSPClientProfile.PHProfilePhone,
                             PHwhenCreate = a.LSPClientProfile.PHwhenCreate,
@@ -733,7 +773,8 @@ namespace SEMSonWeb.Server.Controllers
                             PHProfileIDstudent = a.LSPClientProfile.PHProfileIDstudent,
                             PHProfilelName = a.LSPClientProfile.PHProfilelName,
                             PHProfilePhone = a.LSPClientProfile.PHProfilePhone,
-                            PHProfileImg = a.LSPClientProfile.PHProfileImg,
+                            PHProfileNameImg = a.LSPClientProfile.PHProfileNameImg,
+                            PHProfileStorageImg = a.LSPClientProfile.PHProfileStorageImg,
                             PHwhenCreate = a.LSPClientProfile.PHwhenCreate,
                             PHwhenEdit = a.LSPClientProfile.PHwhenEdit,
                             PHWhoCreate = a.LSPClientProfile.PHWhoCreate,

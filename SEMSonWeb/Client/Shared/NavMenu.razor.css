@@ -10,7 +10,8 @@
 .navbar-brand {
     font-size: 1.1rem;
     /*+++++++++++++++++++++++++++++++*/
-    position: fixed;
+    /*position: fixed;*/
+    text-decoration: none;  
 }
 
 .oi {
@@ -47,40 +48,120 @@
     color: white;
 }
 
-.nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
+        .nav-item ::deep a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            /*--------------------------++++++++++++++++++++---------------------*/
+            text-decoration: none;
+        }
 /*--------------------------++++++++++++++++++++---------------------*/
 
-.menu {
+/*.menu {
     border-radius: 3px;
     background-color: rgba(128, 128, 128,0.0);
     border-width: 0px;
     margin-left: 160px;
-    /*transition: all 0.5s ease;*/
+    transition: all 0.5s ease;
 }
 .menu:hover {
     background-color: rgba(255,255,255,0.1);
     color: white;
-}
+}*/
 .nav-item p {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    position: fixed;
-    margin-left: 35px;
+    /*position: fixed;*/
+    /*margin-left: 35px;*/
 }
+.profileuse {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+    color: #d7d7d7;
+}
+    .profileuse p {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    .profileuse:first-of-type {
+        padding-top: 1rem;
+    }
 
-.nav-item.move p {
-    display: none;
+    .profileuse:last-of-type {
+        padding-bottom: 1rem;
+    }
+    .profileuse ::deep a {
+        color: #d7d7d7;
+        border-radius: 4px;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        line-height: 3rem;
+    }
+    .profileuse ::deep a.active {
+        background-color: rgba(255,255,255,0.25);
+        color: white;
+    }
+
+    .profileuse ::deep a:hover {
+        background-color: rgba(255,255,255,0.1);
+        color: white;
+        /*--------------------------++++++++++++++++++++---------------------*/
+        text-decoration: none;
+    }
+.proimg {
+    margin-top: 1rem;
+    /*margin-bottom: 1rem;*/
+    font-size: 0.9rem;
+    color: #d7d7d7;
+    /*border-radius: 4px;*/
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    /*line-height: 3rem;*/
+    padding-bottom: 1rem;
+    color: white;
 }
-.move .navbar-brand {
+    .proimg p {
+        display: inline-block;
+        width:120px;
+        margin-top: 1rem;
+        margin-left: 10px;
+        margin-bottom: 1rem;
+    }
+    .proimg:first-of-type {
+        padding-top: 1rem;
+    }
+
+    .proimg:last-of-type {
+        padding-bottom: 0rem;
+    }
+.primg {
+    margin-bottom:20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.curcle{
+    background-color:rgb(0, 255, 33);
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius: 50%;
+}
+.statususer {
+    display: inline-block;
+    color: #d7d7d7;
+}
+/*.nav-item.move p {
+    display: none;
+}*/
+/*.move .navbar-brand {
     display: none;
 }
 .move .menu{
     margin-left:-10px;
-}
-
+}*/
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;

@@ -12,7 +12,6 @@ namespace SEMSonWeb.Shared
         public string? PHHisActionCode { get; set; }
         public int PHequipReturn { get; set; }
         public int PHequipBorrow { get; set; }
-
         public string? SPClientUsrCode { get; set; }
         public string? SPClientUsrName { get; set; }
         public DateTime? SPClientWhenBorrow { get; set; }

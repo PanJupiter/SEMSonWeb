@@ -8,6 +8,8 @@ namespace SEMSonWeb.Client.Services
     public class ServicesData : IServicesData
     {
         public event Action? Callab;
+        public string ActionControl { get; set; } = "visible";
+        public string ActionUser { get; set; } = "visible";
         public string ActionCall { get; set; } = "sign";
         public string ActionModel { get; set; } = "add";
         public string ActionPos { get; set; } = "one";
@@ -132,7 +134,7 @@ namespace SEMSonWeb.Client.Services
 
         public async Task CreateDbSPClientUser(SPClientUser user)
         {
-            /*var result =*/ await _http.PostAsJsonAsync("api/Services/PostUser", user);
+            /*var result =*/ await _http.PostAsJsonAsync("api/Services/PostUser",user);
             /*await SetUser(result);*/
         }
         public async Task CreateDbSPClientClass(SPClientClass cla)
@@ -228,7 +230,8 @@ namespace SEMSonWeb.Client.Services
             SPClientUserX.LSPClientProfile.PHProfilelName = string.Empty;
             SPClientUserX.LSPClientProfile.PHProfileIDcard = string.Empty;
             SPClientUserX.LSPClientProfile.PHProfileIDstudent = string.Empty;
-            SPClientUserX.LSPClientProfile.PHProfileImg = string.Empty;
+            SPClientUserX.LSPClientProfile.PHProfileNameImg = string.Empty; 
+            SPClientUserX.LSPClientProfile.PHProfileStorageImg = string.Empty; 
             ActionCall = "sign";
         }
         public void ClearformSport()
@@ -263,7 +266,8 @@ namespace SEMSonWeb.Client.Services
             SPClientUserX.LSPClientProfile.PHProfileClassroom=user.LSPClientProfile.PHProfileClassroom;
             SPClientUserX.LSPClientProfile.PHProfilefName=user.LSPClientProfile.PHProfilefName;
             SPClientUserX.LSPClientProfile.PHProfilelName=user.LSPClientProfile.PHProfilelName;
-            SPClientUserX.LSPClientProfile.PHProfileImg = user.LSPClientProfile.PHProfileImg;
+            SPClientUserX.LSPClientProfile.PHProfileNameImg = user.LSPClientProfile.PHProfileNameImg;
+            SPClientUserX.LSPClientProfile.PHProfileStorageImg = user.LSPClientProfile.PHProfileStorageImg;
             ActionCall = "edite";
         }
         public void EditPos(SPClientPos pos)
@@ -371,6 +375,7 @@ namespace SEMSonWeb.Client.Services
                 PHEquipName = p.PHEquipName,
                 LSPModelSport = p.LSPModelSport,
                 PHequipBorrow = u.PHequipBorrow,
+                PHEquipUnit = p.PHEquipUnit,
                 PHequipReturn = u.PHequipReturn,
                 SPClientWhenBorrow = u.PHborrow,
                 SPClientWhenReturn = u.PHreturn,
@@ -385,6 +390,7 @@ namespace SEMSonWeb.Client.Services
                     PHHisActionCode = p.PHHisActionCode,
                     PHEquipImg = p.PHEquipImg,
                     PHEquipCode = p.PHEquipCode,
+                    PHEquipUnit = p.PHEquipUnit,
                     PHEquipName = p.PHEquipName,
                     LSPModelSport = p.LSPModelSport,
                     PHequipBorrow = p.PHequipBorrow,

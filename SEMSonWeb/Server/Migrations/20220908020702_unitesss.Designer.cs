@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SEMSonWeb.Server.Data;
 
@@ -11,9 +12,10 @@ using SEMSonWeb.Server.Data;
 namespace SEMSonWeb.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20220908020702_unitesss")]
+    partial class unitesss
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,13 +117,10 @@ namespace SEMSonWeb.Server.Migrations
                     b.Property<string>("PHProfileIDstudent")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PHProfileNameImg")
+                    b.Property<string>("PHProfileImg")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PHProfilePhone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PHProfileStorageImg")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PHProfilefName")
@@ -218,6 +217,9 @@ namespace SEMSonWeb.Server.Migrations
 
                     b.Property<int>("PHequipReturn")
                         .HasColumnType("int");
+
+                    b.Property<string>("PHequipUnits")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PHreturn")
                         .HasColumnType("datetime2");

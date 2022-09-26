@@ -6,7 +6,7 @@
 <div class="container">
     <div class="row my-3 ffff">
         <div class="col-sm-12 col-lg-6">
-            <RadzenChart>
+            <RadzenChart ColorScheme="ColorScheme.Palette">
                 <RadzenDonutSeries Data="@ServicesData.SPModelEquipList" Title="จำนวน" CategoryProperty="PHEquipName" ValueProperty="PHEquipTotal">
                     <TitleTemplate >
                         <div class="rz-donut-content">
@@ -18,7 +18,7 @@
             </RadzenChart>
         </div>
         <div class="col-sm-12 col-lg-6">
-            <RadzenChart >
+            <RadzenChart ColorScheme="ColorScheme.Palette">
                     <RadzenDonutSeries Data="@ServicesData.SPModelEquipList" Title="จำนวน" CategoryProperty="PHEquipName" ValueProperty="PHEquipBorroww">
                     <TitleTemplate>
                         <div class="rz-donut-content">
@@ -31,26 +31,24 @@
         </div>
     </div>
 </div>
-<h3 class="w-50 d-inline-block mt-3">รายการคงเหลือ</h3><h3 class="d-inline ms-3 mt-3">รายการยืม</h3>
+<h3 class="w-50 d-inline-block mt-3"><strong>รายการคงเหลือ</strong></h3><h3 class="d-inline ms-3 mt-3"><strong>รายการยืม</strong></h3>
 
 <div class="block_table">
     <table class = "table">
         <thead>   
             <tr>
                 <th class="text-center">อุปกรณ์กีฬา
-                     <div class="filter"><i class="oi oi-project"></i>
-                        <div class="filters">
-                        <div class="input-group">
-                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fill"/>
-                        </div>
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillter">search</button>
-                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillter">clear</button>
+                     <div class="filter"><i class="oi oi-project" @onclick="checkfillters"></i>
+                        <div class="filtered @filled">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
+                                                Placeholder="Select..." Data=@ServicesData.SPModelEquipList TextProperty="PHEquipName" ValueProperty="PHEquipCode" Change=@(args => OnChange(args, "DropDown with placeholder")) />
+                            </RadzenCard>
                         </div>
                     </div></div>
                 </th>
                 <th class="text-center">คงเหลือ</th>
-                <th class="text-center">หน่วย</th>
             </tr>
         </thead>
         <tbody>
@@ -58,8 +56,7 @@
             {
                 <tr>
                     <td class="text-center">@speq.PHEquipName</td>
-                    <td class="text-center">@speq.PHEquipTotal</td>
-                    <td class="text-center">@speq.PHEquipUnit</td>
+                    <td class="text-center">@speq.PHEquipTotal @speq.PHEquipUnit</td>
                 </tr>
             }
         </tbody>
@@ -71,19 +68,17 @@
             <tr>
                 <th class="text-center">ผู้ยืม</th>
                 <th class="text-center">อุปกรณ์กีฬา
-                    <div class="filter"><i class="oi oi-project"></i>
-                        <div class="filters">
-                        <div class="input-group">
-                            <input type="search" class="form-control rounded" placeholder="Search" aria-label="Search" aria-describedby="search-addon" @bind="@fills"/>
-                        </div>
-                        <div class="input-group">
-                            <button type="button" class="btn btn-outline-primary w-50" @onclick="fillters">search</button>
-                            <button type="button" class="btn btn-outline-secondary w-50" @onclick="Clearfillters">clear</button>
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillterses"></i>
+                        <div class="filtered @filleds">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
+                                                Placeholder="Select..." Data=@ServicesData.SPModelEquipList TextProperty="PHEquipName" ValueProperty="PHEquipName" Change=@(args => OnChangess(args, "DropDown with placeholder")) />
+                            </RadzenCard>
                         </div>
                     </div></div></th>
                 <th class="text-center">ว/ด/ป (ยืม)</th>
                 <th class="text-center">ถูกยืม</th>
-                <th class="text-center">หน่วย</th>
             </tr>
         </thead>
         <tbody>
@@ -95,9 +90,8 @@
                         <tr>
                             <td class="text-center">@his.SPClientUsers.LSPClientProfile.PHProfilefName</td>
                             <td class="text-center">@his.PHEquipName</td>
-                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/mm/yyyy")</td>
-                            <td class="text-center">@his.PHequipBorrow</td>
-                            <td class="text-center">@his.PHEquipUnit</td>
+                            <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>
 
                         </tr>
                     }
@@ -105,11 +99,14 @@
         </tbody>
     </table>
 </div>
+
 @code {
     private List<SPModelEquip> FilterSport { get; set; } = new();
     private List<History> FilterHis { get; set; } = new();
     public string fill { get; set; } = string.Empty;
     public string fills { get; set; } = string.Empty;
+    public string filled { get; set; } = "visually-hidden";
+    public string filleds { get; set; } = "visually-hidden";
     protected override async Task OnInitializedAsync()
     {
         await ServicesData.GetDbSPModelEquip();
@@ -119,29 +116,84 @@
         FilterHis = ServicesData.histories.ToList();
         ServicesData.Callab += StateHasChanged;
     }
-    public void fillter()
+    //public void fillter()
+    //{
+    //    if(fill != string.Empty)
+    //        FilterSport = ServicesData.SPModelEquipList.Where(a => a.PHEquipName == fill).ToList();
+    //}
+    //public void Clearfillter()
+    //{
+    //    fill = string.Empty;
+    //    FilterSport = ServicesData.SPModelEquipList.ToList();
+    //}
+    //public void fillters()
+    //{
+    //    if(fills != string.Empty)
+    //        FilterHis = ServicesData.histories.Where(a => a.PHEquipName == fills).ToList();
+    //}
+    //public void Clearfillters()
+    //{
+    //    fills = string.Empty;
+    //    FilterHis = ServicesData.histories.ToList();
+    //}
+    public void checkfillters()
     {
-        if(fill != string.Empty)
-            FilterSport = ServicesData.SPModelEquipList.Where(a => a.PHEquipName == fill).ToList();
+        filleds = "visually-hidden";
+
+        if(filled == "visually-visible")
+        {
+            filled = "visually-hidden";
+        }
+        else
+        {
+            filled = "visually-visible";
+        }
     }
-    public void Clearfillter()
+    public void checkfillterses()
     {
-        fill = string.Empty;
-        FilterSport = ServicesData.SPModelEquipList.ToList();
+        filled = "visually-hidden";
+
+        if(filleds == "visually-visible")
+        {
+            filleds = "visually-hidden";
+        }
+        else
+        {
+            filleds = "visually-visible";
+        }
     }
-    public void fillters()
+    public void OnChangess(object value, string name)
     {
-        if(fills != string.Empty)
-             FilterHis = ServicesData.histories.Where(a => a.PHEquipName == fills).ToList();
-    }
-    public void Clearfillters()
-    {
-        fills = string.Empty;
-        FilterHis = ServicesData.histories.ToList();
+        filleds = "visually-hidden";
+        var stra = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+        if (stra != null)
+        { 
+            FilterHis = ServicesData.histories.Where(a => a.PHEquipName == stra.ToString()).ToList();
+        }
+        else
+        {
+            FilterHis = ServicesData.histories.ToList();
+        }
+        //Console.WriteLine($"{name} value changed to {stra}");
     }
     public void Dispose()
     {
-         ServicesData.Callab -= StateHasChanged;
+        ServicesData.Callab -= StateHasChanged;
     }
+    void OnChange(object value, string name)
+    {
+        filled = "visually-hidden";
+        var str = value is IEnumerable<object> ? string.Join(", ", (IEnumerable<object>)value) : value;
+        if (str != null)
+        {
+            FilterSport = ServicesData.SPModelEquipList.Where(a => a.PHEquipCode == str.ToString()).ToList();
+        }
+        else
+        {
+            FilterSport = ServicesData.SPModelEquipList.ToList();
+        }
+        //Console.WriteLine($"{name} value changed to {str}");
+    }
+    
    
 }

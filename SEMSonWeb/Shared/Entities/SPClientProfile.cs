@@ -15,7 +15,8 @@ namespace SEMSonWeb.Shared.Entities
         public string?      PHProfilefName { get; set; }
         public string?      PHProfilelName { get; set; }
         public string?      PHProfileEmail { get; set; }
-        public string?      PHProfileImg { get; set; }
+        public string?      PHProfileNameImg { get; set; }
+        public string?      PHProfileStorageImg { get; set; }
         public string?      PHProfilePhone { get; set; }
         public string?      PHProfileClassroom { get; set; }
 

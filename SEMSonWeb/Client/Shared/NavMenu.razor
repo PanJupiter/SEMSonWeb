@@ -1,71 +1,165 @@
 ﻿@inject NavigationManager Navigation
 @inject IServicesData ServicesData
 @inject IJSRuntime JS
+@inject HttpClient Http
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
 @using SEMSonWeb.Shared
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid @Menubar">
-        <a class="navbar-brand" href="dashboard">Sport</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <button class="menu" @onclick="Tagemenu"><span class="oi oi-menu text-white" aria-hidden="true"></span></button>
+@if (SPClientUserLog.PHUserState == "admin")
+{
+    <div class="top-row ps-3 navbar navbar-dark">
+        @*<div class="container-fluid @Menubar">*@
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard">Sport</a>
+            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            @*<button class="menu" @onclick="Tagemenu"><span class="oi oi-menu text-white" aria-hidden="true"></span></button>*@
+        </div>
     </div>
-</div>
+}
+@if (SPClientUserLog.PHUserState == "user")
+{
+    <div class="top-row ps-3 navbar navbar-dark">
+        @*<div class="container-fluid @Menubar">*@
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboarduser">Sport</a>
+            <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            @*<button class="menu" @onclick="Tagemenu"><span class="oi oi-menu text-white" aria-hidden="true"></span></button>*@
+        </div>
+    </div>
+   
+}
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column ">    
-        <div class="nav-item @Menubar px-3">
-            <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
-                <span class="oi oi-home " aria-hidden="true"></span> <p>หน้าหลัก</p>
+        <div class="proimg px-3">
+            <NavLink>
+                <span aria-hidden="true"><img class="primg " src="https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953_960_720.jpg"/></span> <p>คุณ<b class="d-none">g</b>@SPClientProfileLog.PHProfilefName @*&nbsp;&nbsp; @SPClientProfileLog.PHProfilelName*@<br /><div class="curcle"></div> <div class="statususer">online</div> </p>
+                <span aria-hidden="true"><img class="primg " id="image"/></span> <p>คุณ</p>
             </NavLink>
         </div>
-        <div class="nav-item @Menubar px-3">
-            <NavLink class="nav-link" href="Member">
-                <span class="oi oi-people" aria-hidden="true"></span> <p>จัดการสมาชิก</p>
-            </NavLink>
-        </div>
-        <div class="nav-item @Menubar px-3">
-            <NavLink class="nav-link" href="positions">
-                <span class="oi oi-graph" aria-hidden="true"></span> <p>จัดการตำแหน่ง</p>
-            </NavLink>
-        </div>
-        <div class="nav-item @Menubar px-3">
-            <NavLink class="nav-link" href="Sport">
-                <span class="oi oi-dashboard" aria-hidden="true"></span> <p>จัดการอุปกรณ์กีฬา</p>
-            </NavLink>
-        </div>
-        <div class="nav-item @Menubar px-3">
-            <NavLink class="nav-link text-white" @onclick="LogOut">
-                <span class="oi oi-account-login" aria-hidden="true"></span> <p>ออกจากระบบ</p>
+        @if (SPClientUserLog.PHUserState == "user")
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="dashboarduser" Match="NavLinkMatch.All">
+                    <span class="oi oi-home " aria-hidden="true"></span> <p>หน้าหลัก</p>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Member">
+                    <span class="oi oi-person" aria-hidden="true"></span> <p>แก้ไขโปรไฟล์</p>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="EditPassword">
+                    <span class="oi oi-pencil" aria-hidden="true"></span> <p>แก้ไขรหัสผ่าน</p>
+                </NavLink>
+            </div>
+        }
+        @if (SPClientUserLog.PHUserState == "admin")
+        {
+            @*<div class="nav-item @Menubar px-3">*@
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
+                    <span class="oi oi-home " aria-hidden="true"></span> <p>หน้าหลัก</p>
+                </NavLink>
+            </div>
+            
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Member">
+                    <span class="oi oi-people" aria-hidden="true"></span> <p>จัดการสมาชิก</p>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="positions">
+                    <span class="oi oi-graph" aria-hidden="true"></span> <p>จัดการตำแหน่ง</p>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Sport">
+                    <span class="oi oi-dashboard" aria-hidden="true"></span> <p>จัดการอุปกรณ์กีฬา</p>
+                </NavLink>
+            </div>
+        }
+        <div class="profileuse px-3">
+            <NavLink class="nav-link" @onclick="LogOut">
+                <span class="oi oi-account-login" aria-hidden="true"></span> <p class="d-inline-block">ออกจากระบบ</p>
             </NavLink>
         </div>
     </nav>
+    <button @onclick="SetImageAsync">
+    Set Image
+</button>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    [Parameter]
-    public EventCallback Tagemenu { get; set; }
 
-    [Parameter]
-    public string? Menubar { get; set; }
+    //[Parameter]
+    //public EventCallback Tagemenu { get; set; }
+
+    //[Parameter]
+    //public string? Menubar { get; set; }
+
+    public string Id { get; set; }
+    public SPClientUser SPClientUserLog { get; set; } = new SPClientUser();
+    public SPClientProfile SPClientProfileLog { get; set; } = new SPClientProfile();
+    private string? imageSource;
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPClientUser();
+        await ServicesData.GetDbSPClientProfile();
+        //ServicesData.Callab += StateHasChanged;
+        Id = (await LocalStorage.GetItemAsStringAsync("token")).Replace("\"", "");
+        if(Id != null)
+        {
+            var ddd = ServicesData.SPClientUserList.Find(v => v.PHUserCode == Id);
+            if(ddd != null){
+                SPClientUserLog = ddd;
+                SPClientProfileLog = ddd.LSPClientProfile;
+                await SetImageAsync();
+            }
+            //Console.WriteLine(SPClientUserLog.PHUserName);
+            //var ss = Id.Replace("\"", "");
+            //string id  = await LocalStorage.GetItemAsStringAsync("token");
+            //Console.WriteLine(Id);
+        }
+    }
+    private async Task<Stream> GetImageStreamAsync()
+    {
+        return await Http.GetStreamAsync("https://avatars.githubusercontent.com/u/9141961");
+    }
+
+    private async Task SetImageAsync()
+    {
+        var imageStream = await GetImageStreamAsync();
+        var dotnetImageStream = new DotNetStreamReference(imageStream);
+        await JS.InvokeVoidAsync("setImage", "image", dotnetImageStream);
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+
     }
     public async void LogOut()
     {
         var resultes = await JS.InvokeAsync<bool>("LogOutSuc");
         if (resultes)
         {
-            ServicesData.LoginID = string.Empty;
+            await LocalStorage.RemoveItemAsync("token");
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            ServicesData.LoginID = string.Empty; 
             ServicesData.LoginPassword = string.Empty;
             Navigation.NavigateTo("/");
         }
 
     }
+    
 }
