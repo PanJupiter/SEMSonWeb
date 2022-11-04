@@ -14,6 +14,8 @@ namespace SEMSonWeb.Shared.Entities
         public string?      PHEquipName { get; set; }
         public string?      PHEquipImg { get; set; }
         public int          PHEquipAmount { get; set; }
+        public int          PHEquipLost { get; set; }
+        public int          PHEquipBroken { get; set; }
         public int          PHEquipTotal { get; set; }
         public int          PHEquipBorroww { get; set; }
         public string?      PHEquipUnit { get; set; }

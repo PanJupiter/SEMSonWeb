@@ -76,28 +76,35 @@
                         <label class="col-sm-3 col-form-label">นามสกุล</label>
                         <div class="col-sm-8"><input type="text" class="form-control" id="validationDefault07" required placeholder="โปรดกรอกนามสกุล" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHProfilelName"></div>
                     </div>
+                    @if(ServicesData.SPClientUserX.LSPClientProfile.PHPosCode != "POS-000002"){
+                    }else{
                     <div class="form-group row mb-3" >
                         <label class="col-sm-3 col-form-label">แผนก</label>
                         <div class="col-sm-8">
                         <select class="form-select" id="validationDefault08" required aria-label="select example" @bind="ServicesData.SPClientUserX.LSPClientProfile.PHDepCode">
                             <option selected disabled value="">เลือกแผนก...</option>
                             @foreach(var dep in ServicesData.SPClientDepList)
-                            {
-                                <option value="@dep.PHDepCode">@dep.PHDepName</option>
-                            }
+                                {
+                                    if (dep.PHDepCode != "DEP-000001")
+                                    {
+                                        <option value="@dep.PHDepCode">@dep.PHDepName</option>
+                                    }
+                                }
                         </select></div>
                     </div>
-                    @if(ServicesData.SPClientUserX.LSPClientProfile.PHPosCode == IDstu){
-                    }else{
                     <div class="form-group row mb-3" >
                         <label class="col-sm-3 col-form-label">ชั้น</label>
                         <div class="col-sm-8">
                         <select class="form-select" id="validationDefault09" required @bind="ServicesData.SPClientUserX.LSPClientProfile.PHClassCode">
                             <option selected disabled value="">เลือกชั้น...</option>
                             @foreach(var cla in ServicesData.SPClientClassList)
-                        {
-                            <option value="@cla.PHClassCode">@cla.PHClassName</option>
-                        }
+                                {
+                                    if (cla.PHClassCode != "CL-000001")
+                                    {
+                                    <option value="@cla.PHClassCode">@cla.PHClassName</option>
+                                        
+                                    }
+                                }
                         </select></div>
                     </div>
                     <div class="form-group row mb-3" >
@@ -126,7 +133,7 @@
                     <div class="form-group row mb-3">
                         <label class="col-sm-3 col-form-label">รูปภาพ</label>
                         <div class="col-sm-8"><InputFile class="form-control" OnChange="@OnInputFileChange" multiple /></div>
-                        @if (filesNames.Count > 0)
+                        @*@if (filesNames.Count > 0)
                         {
                             <ul>
                                 @foreach (var fileName in filesNames)
@@ -136,7 +143,7 @@
                                     </li>
                                 }
                             </ul>
-                        }
+                        }*@
                     </div>
                     <div class="mb-3">
                         @if (ServicesData.ActionCall.Contains("sign"))
@@ -159,12 +166,12 @@
     public string styform { get; set; } = "row g-3 needs-validation";
     public string userdemo { get; set; } = "user";
     public string admindemo { get; set; } = "admin";
-    public string IDstu { get; set; } = "POS-000001";
 
-    private int maxAllowedFiles = int.MaxValue;
-    private long maxFileSize = long.MaxValue;
-    private List<string> filesNames = new();
-    private List<SPClientUser> UserImage = new();
+    //private int maxAllowedFiles = int.MaxValue;
+    //private long maxFileSize = long.MaxValue;
+    //private List<string> filesNames = new();
+    //private List<SPClientUser> UserImage = new();
+    public string newImage { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -176,26 +183,35 @@
     }
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
-        using var content = new MultipartFormDataContent();
-        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
-        {
-            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+        //using var content = new MultipartFormDataContent();
+        //foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        //{
+        //    var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+        //    fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+        //
+        //    filesNames.Add(file.Name);
+        //
+        //    content.Add(
+        //        content: fileContent,
+        //        name:"\"files\"",
+        //        fileName: file.Name
+        //    );
+        //    Console.WriteLine(content);
+        //}
+        //var response = await _http.PostAsync("api/Services/ImageAdd", content);
+        //var newUploadResult = await response.Content.ReadFromJsonAsync<List<SPClientUser>>();
+        //if(newUploadResult is not null)
+        //{
+        //    UserImage = UserImage.Concat(newUploadResult).ToList();
+        //}
+        var format = "image/png";
+        var resizeImage = await e.File.RequestImageFileAsync(format,300,300);
+        var buffer = new byte[resizeImage.Size];
+        await resizeImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        newImage = imageData;
 
-            filesNames.Add(file.Name);
-
-            content.Add(
-                content: fileContent,
-                name:"\"files\"",
-                fileName: file.Name
-            );
-        }
-        var response = await _http.PostAsync("api/Services/ImageAdd", content);
-        var newUploadResult = await response.Content.ReadFromJsonAsync<List<SPClientUser>>();
-        if(newUploadResult is not null)
-        {
-            UserImage = UserImage.Concat(newUploadResult).ToList();
-        }
+        //Console.WriteLine(imageData);
     }
     public void formcheck()
     {
@@ -206,13 +222,15 @@
         var result = await JS.InvokeAsync<bool>("SaveMemberjs");
         if (result)
         {
-            foreach (var fileName in UserImage)
-            {
-                ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = fileName.LSPClientProfile.PHProfileNameImg;
-                ServicesData.SPClientUserX.LSPClientProfile.PHProfileStorageImg = fileName.LSPClientProfile.PHProfileStorageImg;
-            }
+            //foreach (var fileName in UserImage)
+            //{
+            //    ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = fileName.LSPClientProfile.PHProfileNameImg;
+            //    ServicesData.SPClientUserX.LSPClientProfile.PHProfileStorageImg = fileName.LSPClientProfile.PHProfileStorageImg;
+            //}
+            ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = newImage;
             await ServicesData.CreateDbSPClientUser(ServicesData.SPClientUserX);
             Navigation.NavigateTo("Member");
+            ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = string.Empty;
             ServicesData.ClearformUser();
         }
     }   
@@ -221,13 +239,18 @@
         var result = await JS.InvokeAsync<bool>("UpdateMemberjs");
         if (result)
         {
-            foreach (var fileName in UserImage)
+            //foreach (var fileName in UserImage)
+            //{
+            //    ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = fileName.LSPClientProfile.PHProfileNameImg;
+            //    ServicesData.SPClientUserX.LSPClientProfile.PHProfileStorageImg = fileName.LSPClientProfile.PHProfileStorageImg;
+            //}
+            if (newImage != string.Empty)
             {
-                ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = fileName.LSPClientProfile.PHProfileNameImg;
-                ServicesData.SPClientUserX.LSPClientProfile.PHProfileStorageImg = fileName.LSPClientProfile.PHProfileStorageImg;
+                ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = newImage;
             }
             await ServicesData.UpdateDbSPClientUser(ServicesData.SPClientUserX);
             Navigation.NavigateTo("Member");
+            ServicesData.SPClientUserX.LSPClientProfile.PHProfileNameImg = string.Empty;
             ServicesData.ClearformUser();
         }
     }

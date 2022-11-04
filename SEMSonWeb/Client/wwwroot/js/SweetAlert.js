@@ -96,6 +96,20 @@ function feildMoreAlert() {
         })
     })
 }
+function MoreTurnAlert() {
+    return new Promise(resolve => {
+        Swal.fire({
+            icon: 'info',
+            title: 'จำนวนอุปกรณ์ไม่สอดคล้อง',
+            text: 'จำนวนที่อุปกรณ์ที่ชำรุด หรือสูญหายมากเกินไป กรุณากรอกใหม่',
+            confirmButtomText: "ok",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                resolve(result.isConfirmed);
+            }
+        })
+    })
+}
 function finishedBo() {
     return new Promise(resolve => {
         Swal.fire({

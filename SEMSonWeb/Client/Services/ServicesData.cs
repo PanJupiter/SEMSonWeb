@@ -281,8 +281,11 @@ namespace SEMSonWeb.Client.Services
         {
             var result = SPModelEquipList.Where(x => x.PHEquipCode == equip.PHEquipCode).ToList();
             SPModelEquipX.PHEquipCode = equip.PHEquipCode;
+            SPModelEquipX.PHEquipBroken = equip.PHEquipBroken;
+            SPModelEquipX.PHEquipLost = equip.PHEquipLost;
             SPModelEquipX.PHEquipAmount = equip.PHEquipAmount;
             SPModelEquipX.PHEquipName = equip.PHEquipName;
+            SPModelEquipX.PHEquipImg = equip.PHEquipImg;
             SPModelEquipX.PHEquipUnit = equip.PHEquipUnit;
             SPModelEquipX.PHSportCode = equip.PHSportCode;
             ActionModel = "edite";

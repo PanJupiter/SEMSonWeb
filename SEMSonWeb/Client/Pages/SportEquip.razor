@@ -9,6 +9,7 @@
     <table class = "table">
         <thead>   
             <tr>
+                <th class="picturePhoto">รูปภาพ</th> 
                 <th class="text-center">อุปกรณ์กีฬา</th>
                 <th class="text-center">ประเภทกีฬา 
                      <div class="filter"><i class="oi oi-project" @onclick="checkfillters"></i>
@@ -21,7 +22,11 @@
                         </div>
                     </div></div>
                     </th>
-                <th class="text-center">จำนวน</th>
+                <th class="text-center">จำนวนถูกยืม</th>
+                <th class="text-center">ชำรุด</th>
+                <th class="text-center">สูญหาย</th>
+                <th class="text-center">จำนวนที่ใช้ได้</th>
+                <th class="text-center">จำนวนทั้งหมด</th>
                 <th class="text-center">หน่วย</th>
                 <th class="text-center">actions</th>
             </tr>
@@ -30,8 +35,13 @@
             @foreach(var speq in FilterSport.ToList())
             {
                 <tr>
+                    <td class="picturePhoto"><img style="width: 40px;height: 40px;" src="@speq.PHEquipImg"/></td>
                     <td class="text-center">@speq.PHEquipName</td>
                     <td class="text-center">@speq.LSPModelSport?.PHSportName</td>
+                    <td class="text-center">@speq.PHEquipBorroww</td>
+                    <td class="text-center">@speq.PHEquipBroken</td>
+                    <td class="text-center">@speq.PHEquipLost</td>
+                    <td class="text-center">@speq.PHEquipTotal</td>
                     <td class="text-center">@speq.PHEquipAmount</td>
                     <td class="text-center">@speq.PHEquipUnit</td>
                     <td class="text-center">
@@ -94,7 +104,7 @@
     }
     public void EditEquips(SPModelEquip speq)
     {
-        ServicesData.EditEquip(new SPModelEquip { PHEquipCode = speq.PHEquipCode,PHEquipAmount = speq.PHEquipAmount,PHEquipImg = speq.PHEquipImg,PHEquipName = speq.PHEquipName,PHEquipUnit = speq.PHEquipUnit,PHSportCode = speq.PHSportCode});
+        ServicesData.EditEquip(new SPModelEquip { PHEquipCode = speq.PHEquipCode,PHEquipAmount = speq.PHEquipAmount,PHEquipImg = speq.PHEquipImg,PHEquipName = speq.PHEquipName,PHEquipUnit = speq.PHEquipUnit,PHSportCode = speq.PHSportCode,PHEquipBroken = speq.PHEquipBroken,PHEquipLost = speq.PHEquipLost});
         Navigation.NavigateTo("Sport/Add_Edit");
     }
     public async Task DeleteEquip(SPModelEquip speq)

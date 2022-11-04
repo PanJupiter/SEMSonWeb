@@ -4,29 +4,38 @@
 @inject IJSRuntime JS
 
 
-@*<div class="modal fade show " id="TakeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none; background:#00000080; padding-top:10%;">
+<div class="modal fade show " id="ModalTurn" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display:none; background:#00000080; padding-top:10%;">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-body">
-          <button type="button" @onclick='eventArgs=>HideModal("TakeModal")' class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-            <form @onsubmit='eventArgs=>SaveBorModal("TakeModal")'>
+          <button type="button" @onclick='eventArgs=>HideModal("ModalTurn")' class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form @onsubmit='eventArgs=>TurnEquipp("ModalTurn")'>
                 <div class="visually-hidden">
                     <label class="form-label ">Id</label>
                     <input type="text" class="form-control">
                 </div>
                 <div class="form-group mb-3" >
-                    <label class="form-label mt-3"><b>จำนวนที่ต้องการยืม</b></label>
-                    <input type="number" class="form-control " placeholder="กรอกจำนวนที่ต้องการยืม" @bind="@borrow">
+                    <label class="form-label mt-3"><h4><strong>หากมีอุปกรณ์ชำรุดหรือสูญหายโปรดกรอก</strong></h4></label>
+                    <div>
+                        <div class="d-inline-block w-25 me-4">
+                            <label class="form-label">จำนวนอุปกรณ์ชำรุด</label>
+                            <input type="number" class="form-control" @bind="broken">
+                        </div>
+                        <div class="d-inline-block w-25">
+                            <label class="form-label">จำนวนอุปกรณ์สูญหาย</label>
+                            <input type="number" class="form-control" @bind="lost">
+                        </div>
+                    </div>
                 </div>
-                <div class="float-end">
-                        <button  class= "btn btn-primary" type="submit">ตกลง</button>
+                <div class="float-center ">
+                        <button  class= "btn btn-success w-25" type="submit">คืน</button>
                 </div>
             </form>
       </div>
     </div>
   </div>
 </div>
-*@
+
 <div class="block_table">
     <table class = "table">
         <thead>   
@@ -54,7 +63,7 @@
                             <td class="text-center">@his.PHequipReturn @his.PHEquipUnit</td>
                             <td class="text-center">@his.SPClientWhenReturn?.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">
-                                <button class ="btn btn-success"@onclick="()=>TurnEquipp(his)">คืน</button>
+                                <button @onclick='eventArgs=>ShowModal("ModalTurn",his)' class ="btn btn-success">คืน</button>@*@onclick="()=>TurnEquipp(his)*@
                             </td> 
                         </tr>
                     }
@@ -72,6 +81,8 @@
 
     public int borrow { get; set; } = 0;
     public int addborrow { get; set; } = 0;
+    public int lost { get; set; } = 0;
+    public int broken { get; set; } = 0;
     public int totalbefore { get; set; } = 0;
     public int totalafter { get; set; } = 0;
     public string IdEquip { get; set; } = string.Empty;
@@ -86,6 +97,36 @@
         FilterSport = ServicesData.SPModelEquipList.ToList();
         ServicesData.Callab += StateHasChanged;
     }
+    protected async void ShowModal(string elementID,History history)
+    {
+        if(module != null)
+        {
+            ServicesData.SPModelEquipX.PHEquipCode = history.PHEquipCode;
+            ServicesData.SPModelEquipX.PHEquipBorroww = history.PHequipBorrow;
+            ServicesData.SPHisActionX.PHHisActionCode = history.PHHisActionCode;
+            ServicesData.SPHisActionX.PHequipReturn = history.PHequipBorrow;
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("showModal", elementID);
+        }
+    }
+    protected async void HideModal(string elementID)
+    {
+        if(module != null)
+        {
+            lost = 0;
+            broken = 0;
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+        else
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/Modal.js");
+            await module.InvokeAsync<string>("HideModal", elementID);
+        }
+    }
     public void fillter()
     {
         if(fill != string.Empty)
@@ -97,23 +138,67 @@
         FilterSport = ServicesData.SPModelEquipList.ToList();
     }
 
-    public async Task TurnEquipp(History history)
-    {
-        var resultes = await JS.InvokeAsync<bool>("TurnEQjs");
-        if (resultes)
-        {
-            ServicesData.SPModelEquipX.PHEquipCode = history.PHEquipCode;
-            ServicesData.SPModelEquipX.PHEquipBorroww = history.PHequipBorrow;
-            await ServicesData.ReturnDbSPModelEquip(ServicesData.SPModelEquipX);
+    //public async Task TurnEquipp(History history)
+    //{
+    //    var resultes = await JS.InvokeAsync<bool>("TurnEQjs");
+    //    if (resultes)
+    //    {
+    //        ServicesData.SPModelEquipX.PHEquipCode = history.PHEquipCode;
+    //        ServicesData.SPModelEquipX.PHEquipBorroww = history.PHequipBorrow;
+    //        await ServicesData.ReturnDbSPModelEquip(ServicesData.SPModelEquipX);
+    //
+    //        ServicesData.SPHisActionX.PHHisActionCode = history.PHHisActionCode;
+    //        ServicesData.SPHisActionX.PHequipReturn = history.PHequipBorrow;
+    //        await ServicesData.TurnDbSPHisAction(ServicesData.SPHisActionX);
+    //        FilterSport = ServicesData.SPModelEquipList.ToList();
+    //        ServicesData.SPHisActionX.PHHisActionCode = string.Empty;
+    //        ServicesData.SPModelEquipX.PHEquipCode = string.Empty;
+    //        ServicesData.SPHisActionX.PHequipReturn = 0;
+    //        ServicesData.SPModelEquipX.PHEquipBorroww = 0;
+    //    }
+    //}
 
-            ServicesData.SPHisActionX.PHHisActionCode = history.PHHisActionCode;
-            ServicesData.SPHisActionX.PHequipReturn = history.PHequipBorrow;
-            await ServicesData.TurnDbSPHisAction(ServicesData.SPHisActionX);
-            FilterSport = ServicesData.SPModelEquipList.ToList();
-            ServicesData.SPHisActionX.PHHisActionCode = string.Empty;
-            ServicesData.SPModelEquipX.PHEquipCode = string.Empty;
-            ServicesData.SPHisActionX.PHequipReturn = 0;
-            ServicesData.SPModelEquipX.PHEquipBorroww = 0;
+    protected async Task TurnEquipp(string elementID)
+    {
+        if (lost >= 0 && broken >= 0)
+        {
+            if ((lost+broken)<= ServicesData.SPHisActionX.PHequipReturn)
+            {
+                var resultes = await JS.InvokeAsync<bool>("TurnEQjs");
+                if (resultes)
+                {
+
+                    ServicesData.SPModelEquipX.PHEquipLost = lost;
+                    ServicesData.SPModelEquipX.PHEquipBroken = broken;
+
+                    await ServicesData.ReturnDbSPModelEquip(ServicesData.SPModelEquipX);
+                    await ServicesData.TurnDbSPHisAction(ServicesData.SPHisActionX);
+                    FilterSport = ServicesData.SPModelEquipList.ToList();
+                    await module.InvokeAsync<string>("HideModal", elementID);
+                    ServicesData.SPHisActionX.PHHisActionCode = string.Empty;
+                    ServicesData.SPModelEquipX.PHEquipCode = string.Empty;
+                    ServicesData.SPHisActionX.PHequipReturn = 0;
+                    ServicesData.SPModelEquipX.PHEquipBorroww = 0;
+
+                    lost = 0;
+                    broken = 0;
+                    ServicesData.SPModelEquipX.PHEquipLost = 0;
+                    ServicesData.SPModelEquipX.PHEquipBroken = 0;
+                }
+
+            }
+            else
+            {
+                //var resultess = await JS.InvokeAsync<bool>("MoreTurnAlert");
+                //if (resultess)
+                //{
+                //    
+                //}
+            }
+        }
+        else
+        {
+                
         }
     }
 

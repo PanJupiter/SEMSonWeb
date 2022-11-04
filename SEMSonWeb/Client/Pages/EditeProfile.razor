@@ -1,0 +1,161 @@
+﻿@page "/ChangeProfile"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JS
+
+<style>
+    .Pictre{
+        width: 200px;
+        height: 200px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+</style>
+<div class ="container-fluid">
+        <div class = "row">
+            <div class = "col-md-3 col-sm-6 col-xs-12"> </div>        
+            <div class = "col-md-6 col-sm-6 col-xs-12">
+                <form @onsubmit="SubMem">
+                        <h3 class="mb-3 mt-3 text-center"><strong>แก้ไขโปรไฟล์</strong></h3>
+                    <div class="mb-3 visually-hidden">
+                        <label class="col-sm-3 col-form-label">Id</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" @bind="SPClientUserLog.PHUserCode"></div>
+                    </div>
+                    <div class="mb-3 visually-hidden">
+                        <label class="col-sm-3 col-form-label">Idp</label>
+                        <div class="col-sm-8"> <input type="text" class="form-control" @bind="SPClientUserLog.PHProfileCode"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">สถานะ</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" id="validationDefault01" required @bind="SPClientUserLog.PHUserState" readonly></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">Username</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" id="validationDefault03" required placeholder="Enter your username" @bind="SPClientUserLog.PHUserName" readonly></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">Password</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" id="validationDefault04" required placeholder="Enter your password" @bind="SPClientUserLog.PHUserPassword" readonly></div>
+                    </div>
+                    <div class="form-group row mb-3" >
+                        <label class="col-sm-3 col-form-label">คำนำหน้า</label>
+                        <div class="col-sm-8">
+                            <select class="form-select" id="validationDefault05" required @bind="SPClientProfileLog.PHPreCode">
+                            <option selected disabled value="">เลือกคำนำหน้า...</option>
+                            @foreach(var pre in ServicesData.SPClientPreList)
+                            {
+                                <option value="@pre.PHPreCode">@pre.PHPreName</option>
+                            }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3" >
+                        <label class="col-sm-3 col-form-label">ชื่อ</label>
+                        <div class="col-sm-8"><input type="text" class="form-control " id="validationDefault06" required placeholder="โปรดกรอกชื่อ" @bind="SPClientProfileLog.PHProfilefName"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">นามสกุล</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" id="validationDefault07" required placeholder="โปรดกรอกนามสกุล" @bind="SPClientProfileLog.PHProfilelName"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">เบอร์โทร</label>
+                        <div class="col-sm-8"><input type="number" class="form-control" id="validationDefault13" required placeholder="Enter your number" @bind="SPClientProfileLog.PHProfilePhone"></div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">อีเมล์</label>
+                        <div class="col-sm-8    "><input type="email" class="form-control" id="validationDefault14" required placeholder="Enter your email" @bind="SPClientProfileLog.PHProfileEmail"></div>
+                    </div>
+                    @*--------------------------------------------------------------------------------------*@
+                    <div class="form-group row mb-3">
+                        <label class="col-sm-3 col-form-label">รูปภาพ</label>
+                        <div class="col-sm-8">
+                        @if(newImage != string.Empty)
+                        {
+                            <img class="Pictre" src="@newImage"/>
+                        }
+                        else
+                        {
+                            @if(SPClientProfileLog.PHProfileNameImg != null && SPClientProfileLog.PHProfileNameImg != string.Empty)
+                            {
+                                <img class="Pictre" src="@SPClientProfileLog.PHProfileNameImg"/>
+                            }
+                            @if(SPClientProfileLog.PHProfileNameImg == null || SPClientProfileLog.PHProfileNameImg == string.Empty)
+                            {
+                                <img class="Pictre" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"/>
+                            }
+                        }
+                            <InputFile class="form-control" OnChange="@OnInputFileChange" multiple /></div>
+                    </div>
+                    <div class="mb-3">
+                        <button type="submit" class= "btn btn-primary">บันทึก</button>
+                        <button class= "btn btn-danger " style="margin-left:50px;" type="button" @onclick="CancleForm">ยกเลิก</button>
+                    </div>
+                </form>
+                
+            </div>
+            <div class = "col-md-4 col-sm-4 col-xs-12"> </div>        
+        </div>
+    </div>
+
+@code {
+    public string newImage { get; set; } = string.Empty;
+
+    public string Id { get; set; } = string.Empty;
+    public SPClientUser SPClientUserLog { get; set; } = new SPClientUser();
+    public SPClientProfile SPClientProfileLog { get; set; } = new SPClientProfile();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPClientClass();
+        await ServicesData.GetDbSPClientDep();
+        await ServicesData.GetDbSPClientPos();
+        await ServicesData.GetDbSPClientPre();
+        await ServicesData.GetDbSPClientUser();
+        Id = (await LocalStorage.GetItemAsStringAsync("token")).Replace("\"", "");
+        if(Id != null)
+        {
+            var ddd = ServicesData.SPClientUserList.Find(v => v.PHUserCode == Id);
+            if(ddd != null){
+                SPClientUserLog = ddd;
+                SPClientProfileLog = ddd.LSPClientProfile;
+            }
+        }
+    }
+    public async Task SubMem()
+    {
+        var result = await JS.InvokeAsync<bool>("UpdateMemberjs");
+        if (result)
+        {
+            SPClientUserLog.LSPClientProfile.PHProfileNameImg = newImage;
+            SPClientUserLog.LSPClientProfile.PHPreCode = SPClientProfileLog.PHPreCode;
+            SPClientUserLog.LSPClientProfile.PHProfilefName = SPClientProfileLog.PHProfilefName;
+            SPClientUserLog.LSPClientProfile.PHProfilelName = SPClientProfileLog.PHProfilelName;
+            SPClientUserLog.LSPClientProfile.PHProfilePhone = SPClientProfileLog.PHProfilePhone;
+            SPClientUserLog.LSPClientProfile.PHProfileEmail = SPClientProfileLog.PHProfileEmail;
+            if (newImage != string.Empty)
+            {
+                SPClientUserLog.LSPClientProfile.PHProfileNameImg = newImage;
+
+            }
+            else
+            {
+                SPClientUserLog.LSPClientProfile.PHProfileNameImg = SPClientProfileLog.PHProfileNameImg;
+            }
+
+            await ServicesData.UpdateDbSPClientUser(SPClientUserLog);
+        }
+    }
+    public void CancleForm()
+    {
+    }
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        var resizeImage = await e.File.RequestImageFileAsync(format,300,300);
+        var buffer = new byte[resizeImage.Size];
+        await resizeImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        newImage = imageData;
+    }
+}

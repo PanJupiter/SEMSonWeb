@@ -67,6 +67,7 @@
         <thead>   
             <tr>
                 <th class="text-center">ผู้ยืม</th>
+                <th class="text-center">แผนก</th>
                 <th class="text-center">อุปกรณ์กีฬา
                     <div class="filter"><i class="oi oi-project" @onclick="checkfillterses"></i>
                         <div class="filtered @filleds">
@@ -89,6 +90,7 @@
                     {
                         <tr>
                             <td class="text-center">@his.SPClientUsers.LSPClientProfile.PHProfilefName</td>
+                            <td class="text-center">@his.SPClientUsers.LSPClientProfile.LSPClientDep?.PHDepName</td>
                             <td class="text-center">@his.PHEquipName</td>
                             <td class="text-center">@his.SPClientWhenBorrow?.ToString("dd/MM/yyyy")</td>
                             <td class="text-center">@his.PHequipBorrow @his.PHEquipUnit</td>

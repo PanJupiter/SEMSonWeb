@@ -1,0 +1,154 @@
+﻿@page "/Historypage"
+@inject IServicesData ServicesData
+@inject NavigationManager Navigation
+
+<h3>ประวัติการยืมทั้งหมด</h3>
+<div class="block_table mt-5 ">
+    <table class = "table">
+        <thead>   
+            <tr>
+                <th class="text-center">ลำดับ </th>
+                <th class="text-center">รหัสนักศึกษา</th>
+                <th class="text-center">ผู้ยืม</th>
+                <th class="text-center">แผนก</th>
+                <th class="text-center">อุปกรณ์</th>
+                <th class="text-center">ยืม</th>
+                <th class="text-center">วันที่และเวลา (ยืม)
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillters"></i>
+                        <div class="filtered @filleds">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDatePicker @bind-Value=@value DateFormat="d" Change=@(args => OnChange(args, "DatePicker", "MM/dd/yyyy")) Class="w-100" />
+                            </RadzenCard>
+                        </div>
+                        </div>
+                    </div>
+                </th>
+                <th class="www text-center">คืน</th>
+                <th class="www text-center">วันที่และเวลา (คืน)
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillter"></i>
+                        <div class="filtereds @filled">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenDatePicker @bind-Value=@value DateFormat="d" Change=@(args => OnChanges(args, "DatePicker", "MM/dd/yyyy")) Class="w-100" />
+                            </RadzenCard>
+                        </div>
+                        </div>
+                    </div>
+                </th>
+                <th class="www text-center">สถานะ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*OrderByDescending*@
+            @foreach(var his in FilterHis.OrderByDescending(p => p.SPClientWhenBorrow).Select((v, i) => new { index = i + 1, HisCount = v }))
+            {
+                if (his.HisCount.SPClientWhenReturn == null)
+                {
+
+                    <tr style = "background-color:rgb(250, 247, 202);">
+                        <td class="text-center">@his.index</td>
+                        <td class="text-center">@his.HisCount.SPClientUsers.LSPClientProfile.PHProfileIDstudent</td>
+                        <td class="text-center">@his.HisCount.SPClientUsers.LSPClientProfile.PHProfilefName</td>
+                        <td class="text-center">@his.HisCount.SPClientUsers.LSPClientProfile.LSPClientDep?.PHDepName</td>
+                        <td class="text-center">@his.HisCount.PHEquipName</td>
+                        <td class="text-center">@his.HisCount.PHequipBorrow @his.HisCount.PHEquipUnit</td>
+                        <td class="text-center">@his.HisCount.SPClientWhenBorrow?.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                        <td class="text-center">@his.HisCount.PHequipReturn @his.HisCount.PHEquipUnit</td>
+                        <td class="text-center">@his.HisCount.SPClientWhenReturn?.ToString("dd-MM-yyyy HH:mm:ss ")</td>
+                        <td class="text-center">
+                            @if (his.HisCount.SPClientWhenReturn == null)
+                            {
+                                <text>ยังไม่คืน</text>
+                            }
+                            else
+                            {
+                                <text>คืนแล้ว</text>
+                            }
+                        </td> 
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td class="text-center">@his.index</td>
+                        <td class="text-center">@his.HisCount.SPClientUsers.LSPClientProfile.PHProfileIDstudent</td>
+                        <td class="text-center">@his.HisCount.SPClientUsers.LSPClientProfile.PHProfilefName</td>
+                        <td class="text-center">@his.HisCount.SPClientUsers.LSPClientProfile.LSPClientDep?.PHDepName</td>
+                        <td class="text-center">@his.HisCount.PHEquipName</td>
+                        <td class="text-center">@his.HisCount.PHequipBorrow @his.HisCount.PHEquipUnit</td>
+                        <td class="text-center">@his.HisCount.SPClientWhenBorrow?.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                        <td class="text-center">@his.HisCount.PHequipReturn @his.HisCount.PHEquipUnit</td>
+                        <td class="text-center">@his.HisCount.SPClientWhenReturn?.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                        <td class="text-center">
+                            @if (his.HisCount.SPClientWhenReturn == null)
+                            {
+                                <text>ยังไม่คืน</text>
+                            }
+                            else
+                            {
+                                <text>คืนแล้ว</text>
+                            }
+                        </td> 
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+@code {
+    DateTime? value = DateTime.Now;
+    public string filleds { get; set; } = "visually-hidden";
+    public string filled { get; set; } = "visually-hidden";
+    private List<History> FilterHis { get; set; } = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ServicesData.GetDbSPModelEquip();
+        await ServicesData.GetDbSPClientUser();
+        await ServicesData.GetDbSPHisAction();
+        //FilterSport = ServicesData.SPModelEquipList.ToList();
+        FilterHis = ServicesData.histories.ToList();
+        ServicesData.Callab += StateHasChanged;
+    }
+    public void checkfillters()
+    {
+        filled = "visually-hidden";
+
+        if(filleds == "visually-visible")
+        {
+            filleds = "visually-hidden";
+        }
+        else
+        {
+            filleds = "visually-visible";
+        }
+    }
+    public void checkfillter()
+    {
+        filleds = "visually-hidden";
+
+        if(filled == "visually-visible")
+        {
+            filled = "visually-hidden";
+        }
+        else
+        {
+            filled = "visually-visible";
+        }
+    }
+
+    public void OnChange(DateTime? value, string name, string format)
+    {
+        filleds = "visually-hidden";
+        FilterHis = ServicesData.histories.Where(a => a.SPClientWhenBorrow?.ToString("MM/dd/yyyy") == value?.ToString(format)).ToList();
+        Console.WriteLine($"{name} value changed to {value?.ToString(format)}");
+    }
+    public void OnChanges(DateTime? value, string name, string format)
+    {
+        filled = "visually-hidden";
+        FilterHis = ServicesData.histories.Where(a => a.SPClientWhenReturn?.ToString("MM/dd/yyyy") == value?.ToString(format)).ToList();
+        Console.WriteLine($"{name} value changed to {value?.ToString(format)}");
+    }
+}

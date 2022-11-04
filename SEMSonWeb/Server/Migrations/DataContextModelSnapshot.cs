@@ -241,8 +241,14 @@ namespace SEMSonWeb.Server.Migrations
                     b.Property<int>("PHEquipBorroww")
                         .HasColumnType("int");
 
+                    b.Property<int>("PHEquipBroken")
+                        .HasColumnType("int");
+
                     b.Property<string>("PHEquipImg")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PHEquipLost")
+                        .HasColumnType("int");
 
                     b.Property<string>("PHEquipName")
                         .HasColumnType("nvarchar(max)");

@@ -10,7 +10,16 @@
     <table class = "table">
         <thead>
             <tr>
-                <th class="text-center">รหัสนักศึกษา</th>
+                <th class="text-center">รหัสนักศึกษา
+                    <div class="filter"><i class="oi oi-project" @onclick="checkfillterFive"></i>
+                        <div class="filtered @fillFiv">
+                        <div class="col-md-14">
+                            <RadzenCard>
+                                <RadzenTextBox Placeholder="ค้นหา" Change=@(args => OnChangeFive(args, "TextBox with placeholder")) Class="w-100" />
+                            </RadzenCard>
+                        </div>
+                    </div></div>
+                </th>
                 <th class="text-center">ชื่อ-นามสกุล</th>
                 <th class="text-center">ตำแหน่ง
                     <div class="filter"><i class="oi oi-project" @onclick="checkfillterOne"></i>
@@ -18,7 +27,7 @@
                         <div class="col-md-14">
                             <RadzenCard>
                                 <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
-                                                Placeholder="Select..." Data=@ServicesData.SPClientPosList TextProperty="PHPosName" ValueProperty="PHPosCode" Change=@(args => OnChangeOne(args, "DropDown with placeholder")) />
+                                                Placeholder="เลือก..." Data=@ServicesData.SPClientPosList TextProperty="PHPosName" ValueProperty="PHPosCode" Change=@(args => OnChangeOne(args, "DropDown with placeholder")) />
                             </RadzenCard>
                         </div>
                     </div></div>
@@ -29,7 +38,7 @@
                         <div class="col-md-14">
                             <RadzenCard>
                                 <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
-                                                Placeholder="Select..." Data=@ServicesData.SPClientDepList TextProperty="PHDepName" ValueProperty="PHDepCode" Change=@(args => OnChangeTwo(args, "DropDown with placeholder")) />
+                                                Placeholder="เลือก..." Data=@ServicesData.SPClientDepList TextProperty="PHDepName" ValueProperty="PHDepCode" Change=@(args => OnChangeTwo(args, "DropDown with placeholder")) />
                             </RadzenCard>
                         </div>
                     </div></div>
@@ -40,7 +49,7 @@
                         <div class="col-md-14">
                             <RadzenCard>
                                 <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
-                                                Placeholder="Select..." Data=@ServicesData.SPClientClassList TextProperty="PHClassName" ValueProperty="PHClassCode" Change=@(PHClassCode => OnChangeThr(PHClassCode, "DropDown with placeholder")) />
+                                                Placeholder="เลือก..." Data=@ServicesData.SPClientClassList TextProperty="PHClassName" ValueProperty="PHClassCode" Change=@(PHClassCode => OnChangeThr(PHClassCode, "DropDown with placeholder")) />
                             </RadzenCard>
                         </div>
                     </div></div>
@@ -50,8 +59,7 @@
                         <div class="filtered @fillFou">
                         <div class="col-md-14">
                             <RadzenCard>
-                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100" 
-                                                Placeholder="Select..." Data=@ServicesData.SPClientProfileList TextProperty="PHProfileClassroom" ValueProperty="PHProfileClassroom" Change=@(PHProfileClassroom => OnChangeFou(PHProfileClassroom, "DropDown with placeholder")) />
+                                <RadzenTextBox Placeholder="ค้นหา" Change=@(args => OnChangeFou(args, "TextBox with placeholder")) Class="w-100" />
                             </RadzenCard>
                         </div>
                     </div></div>
@@ -63,15 +71,24 @@
             @foreach(var user in FilterUser)
             {
                 <tr>
-                    <td class="text-center">@user.LSPClientProfile?.PHProfileIDstudent</td>
+                    @if(user.LSPClientProfile?.PHProfileIDstudent != string.Empty){
+                        <td class="text-center">@user.LSPClientProfile?.PHProfileIDstudent</td>
+                    }else{
+                        <td class="text-center">@user.LSPClientProfile?.PHProfileIDcard</td>
+                    }
                     <td>@user.LSPClientProfile?.LSPClientPre?.PHPreName@user.LSPClientProfile?.PHProfilefName &nbsp;&nbsp;@user.LSPClientProfile?.PHProfilelName</td>
                     <td class="text-center">@user.LSPClientProfile?.LSPClientPos?.PHPosName</td>
                     <td class="text-center">@user.LSPClientProfile?.LSPClientDep?.PHDepName</td>
                     <td class="text-center">@user.LSPClientProfile?.LSPClientClass?.PHClassName</td>
                     <td class="text-center">@user.LSPClientProfile?.PHProfileClassroom</td>
                     <td class="text-center">
-                        <button class = "btn-primary border border-thin" @onclick="() =>EditMembers(user)"><i class=" oi oi-pencil"></i></button>
-                        <button class = "btn-danger border border-thin" @onclick="() =>DeleteMember(user)"><i class=" oi oi-trash"></i></button>
+                        @if(user.PHUserState == "user")
+                        {
+                            <button class = "btn-primary border border-thin" @onclick="() =>EditMembers(user)"><i class=" oi oi-pencil"></i></button>
+                            <button class = "btn-danger border border-thin" @onclick="() =>DeleteMember(user)"><i class=" oi oi-trash"></i></button>
+                        }else{
+                            <text>admin</text>
+                        }
                     </td> 
                 </tr>
             }
@@ -85,6 +102,13 @@
     public string fillTwo { get; set; } = "visually-hidden";
     public string fillThr { get; set; } = "visually-hidden";
     public string fillFou { get; set; } = "visually-hidden";
+    public string fillFiv { get; set; } = "visually-hidden";
+
+    public string role { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
+    public string classroom { get; set; } = string.Empty;
+    public string room { get; set; } = string.Empty;
+    public string IDuserIDcard { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,12 +138,20 @@
             if ((user.PHUserCode != null)&&(user.PHProfileCode != null)) 
             {
                 await ServicesData.DeleteDbSPClientUser(user.PHUserCode, user.PHProfileCode);
+                FilterUser = ServicesData.SPClientUserList.ToList();
             } 
         }
     }
+    public void Dispose()
+    {
+         ServicesData.Callab -= StateHasChanged;
+    }
     public void checkfillterOne()
     {
-        //filled = "visually-hidden";
+        fillTwo = "visually-hidden";
+        fillThr = "visually-hidden";
+        fillFou = "visually-hidden";
+        fillFiv = "visually-hidden";
 
         if(fillOne == "visually-visible")
         {
@@ -132,7 +164,10 @@
     }
     public void checkfillterTwo()
     {
-        //filled = "visually-hidden";
+        fillOne = "visually-hidden";
+        fillThr = "visually-hidden";
+        fillFou = "visually-hidden";
+        fillFiv = "visually-hidden";
 
         if(fillTwo == "visually-visible")
         {
@@ -145,7 +180,10 @@
     }
     public void checkfillterThr()
     {
-        //filled = "visually-hidden";
+        fillOne = "visually-hidden";
+        fillTwo = "visually-hidden";
+        fillFou = "visually-hidden";
+        fillFiv = "visually-hidden";
 
         if(fillThr == "visually-visible")
         {
@@ -158,7 +196,10 @@
     }
     public void checkfillterFou()
     {
-        //filled = "visually-hidden";
+        fillOne = "visually-hidden";
+        fillTwo = "visually-hidden";
+        fillThr = "visually-hidden";
+        fillFiv = "visually-hidden";
 
         if(fillFou == "visually-visible")
         {
@@ -169,18 +210,35 @@
             fillFou = "visually-visible";
         }
     }
+    public void checkfillterFive()
+    {
+        fillOne = "visually-hidden";
+        fillTwo = "visually-hidden";
+        fillThr = "visually-hidden";
+        fillFou = "visually-hidden";
+
+        if(fillFiv == "visually-visible")
+        {
+            fillFiv = "visually-hidden";
+        }
+        else
+        {
+            fillFiv = "visually-visible";
+        }
+    }
     public void OnChangeOne(object value, string name)
     {
         fillOne = "visually-hidden";
         var straOne = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
         if (straOne != null)
-        { 
-            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.LSPClientPos?.PHPosCode == straOne.ToString()).ToList();
+        {
+            role = straOne.ToString();
         }
         else
         {
-            FilterUser = ServicesData.SPClientUserList.ToList();
+            role = string.Empty;
         }
+        FilterForm();
         //Console.WriteLine($"{name} value changed to {stra}");
     }
     public void OnChangeTwo(object value, string name)
@@ -189,12 +247,13 @@
         var straTwo = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
         if (straTwo != null)
         { 
-            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.LSPClientDep?.PHDepCode == straTwo.ToString()).ToList();
+            Department = straTwo.ToString();
         }
         else
         {
-            FilterUser = ServicesData.SPClientUserList.ToList();
+            Department = string.Empty;
         }
+        FilterForm();
         //Console.WriteLine($"{name} value changed to {stra}");
     }
     public void OnChangeThr(object value, string name)
@@ -203,30 +262,410 @@
         var straThr = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
         if (straThr != null)
         { 
-            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.LSPClientClass?.PHClassCode == straThr.ToString()).ToList();
+            classroom = straThr.ToString();
         }
         else
         {
-            FilterUser = ServicesData.SPClientUserList.ToList();
+            classroom = string.Empty;
         }
+        FilterForm();
         //Console.WriteLine($"{name} value changed to {stra}");
     }
     public void OnChangeFou(object value, string name)
     {
         fillFou = "visually-hidden";
-        var straFou = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
-        if (straFou != null)
+        var rrrr = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+        if (rrrr != null)
         { 
-            FilterUser = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.PHProfileClassroom == straFou.ToString()).ToList();
+            room = rrrr.ToString();
         }
         else
         {
-            FilterUser = ServicesData.SPClientUserList.ToList();
+            room = string.Empty;
         }
+        FilterForm();
         //Console.WriteLine($"{name} value changed to {stra}");
     }
-    public void Dispose()
+    public void OnChangeFive(object value, string name)
     {
-         ServicesData.Callab -= StateHasChanged;
+        fillFiv = "visually-hidden";
+        var straFou = value is IEnumerable<object> ?string.Join(", ", (IEnumerable<object>)value) : value;
+        if (straFou != null)
+        { 
+            IDuserIDcard = straFou.ToString();
+        }
+        else
+        {
+            IDuserIDcard = string.Empty;
+        }
+        FilterForm();
+        //Console.WriteLine($"{name} value changed to {stra}");
+    }
+    public void FilterForm()
+    {
+        List<SPClientUser> one = new List<SPClientUser>();
+        List<SPClientUser> two = new List<SPClientUser>();
+        List<SPClientUser> three = new List<SPClientUser>();
+        List<SPClientUser> four = new List<SPClientUser>();
+        if (role != string.Empty)
+        {
+            one = ServicesData.SPClientUserList.Where(a => a.LSPClientProfile?.LSPClientPos?.PHPosCode == role).ToList();
+            if(Department != string.Empty)
+            {
+                two = one.Where(a => a.LSPClientProfile?.LSPClientDep?.PHDepCode == Department).ToList();
+                if (classroom != string.Empty)
+                {
+                    three = two.Where(a => a.LSPClientProfile?.LSPClientClass?.PHClassCode == classroom).ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+                else
+                {
+                    three = two.ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                two = one.ToList();
+                if(classroom != string.Empty)
+                {
+                    three = two.Where(b => b.LSPClientProfile?.LSPClientClass?.PHClassCode == classroom).ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+                else
+                {
+                    three = two.ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            one = ServicesData.SPClientUserList.ToList();
+            if(Department != string.Empty)
+            {
+                two = one.Where(a => a.LSPClientProfile?.LSPClientDep?.PHDepCode == Department).ToList();
+                if(classroom != string.Empty)
+                {
+                    three = two.Where(b => b.LSPClientProfile?.LSPClientClass?.PHClassCode == classroom).ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+                else
+                {
+                    three = two.ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                two = one.ToList();
+                if(classroom != string.Empty)
+                {
+                    three = two.Where(b => b.LSPClientProfile?.LSPClientClass?.PHClassCode == classroom).ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+                else
+                {
+                    three = two.ToList();
+                    if (room != string.Empty)
+                    {
+                        four = three.Where(a => a.LSPClientProfile?.PHProfileClassroom == room).ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                    else
+                    {
+                        four = three.ToList();
+                        if (IDuserIDcard != string.Empty)
+                        {
+                            if(four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList().Count() != 0)
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDstudent == IDuserIDcard).ToList();
+                            }
+                            else
+                            {
+                                FilterUser = four.Where(a => a.LSPClientProfile?.PHProfileIDcard == IDuserIDcard).ToList();
+                            }
+                        }
+                        else
+                        {
+                            FilterUser = four.ToList();
+                        }
+                    }
+                }
+            }
+        }
     }
 }

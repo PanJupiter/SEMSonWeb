@@ -34,12 +34,24 @@
                             }
                         </select>*@
                         <RadzenDropDown AllowClear="true" TValue="string" Class="w-100" 
-                                               @bind-Value="ServicesData.SPModelEquipX.PHSportCode" Placeholder="เลือก..." Data=@ServicesData.SPModelEquipList TextProperty="PHEquipName" ValueProperty="PHSportCode"/>
+                                               @bind-Value="ServicesData.SPModelEquipX.PHSportCode" Placeholder="เลือก..." Data=@ServicesData.SPModelEquipList TextProperty="LSPModelSport.PHSportName" ValueProperty="PHSportCode"/>
                         </div>
                         
                     </div>
+                    @if (!ServicesData.ActionModel.Contains("add"))
+                    {
+                        <div class="form-group row mb-3" >
+                            <label class="col-sm-3 col-form-label">จำนวนชำรุด</label>
+                            <div class="col-sm-8"><input type="number" class="form-control " placeholder="โปรดกรอกจำนวนอุปกรณ์" @bind="ServicesData.SPModelEquipX.PHEquipBroken"></div>
+                        </div>
+                        <div class="form-group row mb-3" >
+                            <label class="col-sm-3 col-form-label">จำนวนสูญหาย</label>
+                            <div class="col-sm-8"><input type="number" class="form-control " placeholder="โปรดกรอกจำนวนอุปกรณ์" @bind="ServicesData.SPModelEquipX.PHEquipLost"></div>
+                        </div>
+                    }
+                    
                     <div class="form-group row mb-3" >
-                        <label class="col-sm-3 col-form-label">จำนวน</label>
+                        <label class="col-sm-3 col-form-label">จำนวนทั้งหมด</label>
                         <div class="col-sm-8"><input type="number" class="form-control " placeholder="โปรดกรอกจำนวนอุปกรณ์" @bind="ServicesData.SPModelEquipX.PHEquipAmount"></div>
                     </div>
                     <div class="form-group row mb-3">
@@ -49,7 +61,7 @@
                     @*--------------------------------------------------------------------------------------*@
                     <div class="form-group row mb-3">
                         <label class="col-sm-3 col-form-label">รูปภาพ</label>
-                        <div class="col-sm-8"><input class="form-control" type="file" placeholder="โปรดกรอกหน่วยของอุปกรณ์" @*@bind="ServicesData.SPModelEquipX.PHEquipImg"*@></div>
+                        <div class="col-sm-8"><InputFile class="form-control" OnChange="@OnInputFileChange" multiple /></div>
                     </div>
                     <div class="mb-3">
                           @if (ServicesData.ActionModel.Contains("add"))
@@ -69,19 +81,35 @@
         </div>
 
 @code {
+    public string newImage { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         await ServicesData.GetDbSPModelSport();
         await ServicesData.GetDbSPModelEquip();
+    }
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        var resizeImage = await e.File.RequestImageFileAsync(format,300,300);
+        var buffer = new byte[resizeImage.Size];
+        await resizeImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        newImage = imageData;
+
+        Console.WriteLine(imageData);
     }
     public async Task SubSport()
     {
         var result = await JS.InvokeAsync<bool>("SaveMemberjs");
         if (result)
         {
+            ServicesData.SPModelEquipX.PHEquipImg = newImage;
             await ServicesData.CreateDbSPModelEquip(ServicesData.SPModelEquipX);
             Navigation.NavigateTo("Sport");
             ServicesData.ClearformSport();
+            ServicesData.SPModelEquipX.PHEquipImg = string.Empty;
+
         }
     }
     public async Task UpdateEquip()
@@ -89,9 +117,15 @@
         var result = await JS.InvokeAsync<bool>("UpdateMemberjs");
         if (result)
         {
+            if(newImage != string.Empty)
+            {
+                ServicesData.SPModelEquipX.PHEquipImg = newImage;
+            }
             await ServicesData.UpdateDbSPModelEquip(ServicesData.SPModelEquipX);
             Navigation.NavigateTo("Sport");
             ServicesData.ClearformSport();
+            ServicesData.SPModelEquipX.PHEquipImg = string.Empty;
+
         }
     }
     public void CancleFormEquip()

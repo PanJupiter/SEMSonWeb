@@ -12,8 +12,8 @@ using SEMSonWeb.Server.Data;
 namespace SEMSonWeb.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220918103428_Photo")]
-    partial class Photo
+    [Migration("20221103094903_Test")]
+    partial class Test
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -117,10 +117,13 @@ namespace SEMSonWeb.Server.Migrations
                     b.Property<string>("PHProfileIDstudent")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PHProfileImg")
+                    b.Property<string>("PHProfileNameImg")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PHProfilePhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PHProfileStorageImg")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PHProfilefName")
@@ -240,8 +243,14 @@ namespace SEMSonWeb.Server.Migrations
                     b.Property<int>("PHEquipBorroww")
                         .HasColumnType("int");
 
+                    b.Property<int>("PHEquipBroken")
+                        .HasColumnType("int");
+
                     b.Property<string>("PHEquipImg")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PHEquipLost")
+                        .HasColumnType("int");
 
                     b.Property<string>("PHEquipName")
                         .HasColumnType("nvarchar(max)");

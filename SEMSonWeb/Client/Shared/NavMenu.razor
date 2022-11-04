@@ -38,8 +38,18 @@
     <nav class="flex-column ">    
         <div class="proimg px-3">
             <NavLink>
-                <span aria-hidden="true"><img class="primg " src="https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953_960_720.jpg"/></span> <p>คุณ<b class="d-none">g</b>@SPClientProfileLog.PHProfilefName @*&nbsp;&nbsp; @SPClientProfileLog.PHProfilelName*@<br /><div class="curcle"></div> <div class="statususer">online</div> </p>
-                <span aria-hidden="true"><img class="primg " id="image"/></span> <p>คุณ</p>
+                @*<span aria-hidden="true"><img class="primg " src="https://cdn.pixabay.com/photo/2020/10/05/10/51/cat-5628953_960_720.jpg"/></span> <p>คุณ<b class="d-none">g</b>@SPClientProfileLog.PHProfilefName<br /><div class="curcle"></div> <div class="statususer">online</div> </p>*@
+                @if(SPClientProfileLog.PHProfileNameImg != null && SPClientProfileLog.PHProfileNameImg != string.Empty){
+                    <span aria-hidden="true"><img class="primg " src="@SPClientProfileLog.PHProfileNameImg"/></span> <p>คุณ<b class="d-none">g</b>@SPClientProfileLog.PHProfilefName<br /><div class="curcle"></div> <div class="statususer">online</div> </p>
+                }
+                @if(SPClientProfileLog.PHProfileNameImg == null || SPClientProfileLog.PHProfileNameImg == string.Empty)
+                {
+                    <span aria-hidden="true"><img class="primg " src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"/></span> <p>คุณ<b class="d-none">g</b>@SPClientProfileLog.PHProfilefName<br /><div class="curcle"></div> <div class="statususer">online</div> </p>
+                }
+
+
+                @*<span aria-hidden="true"><img class="primg " src="https://localhost:7181/wwwroot/uploads/mcvcnmmo.13t"/></span> <p>คุณ</p>*@
+
             </NavLink>
         </div>
         @if (SPClientUserLog.PHUserState == "user")
@@ -50,7 +60,7 @@
                 </NavLink>
             </div>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="Member">
+                <NavLink class="nav-link" href="changeprofile">
                     <span class="oi oi-person" aria-hidden="true"></span> <p>แก้ไขโปรไฟล์</p>
                 </NavLink>
             </div>
@@ -84,6 +94,16 @@
                     <span class="oi oi-dashboard" aria-hidden="true"></span> <p>จัดการอุปกรณ์กีฬา</p>
                 </NavLink>
             </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="historypage">
+                    <span class="oi oi-book " aria-hidden="true"></span> <p>ประวัติการยืม</p>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="changeprofile">
+                    <span class="oi oi-person" aria-hidden="true"></span> <p>แก้ไขโปรไฟล์</p>
+                </NavLink>
+            </div>
         }
         <div class="profileuse px-3">
             <NavLink class="nav-link" @onclick="LogOut">
@@ -91,9 +111,9 @@
             </NavLink>
         </div>
     </nav>
-    <button @onclick="SetImageAsync">
-    Set Image
-</button>
+    @*<button @onclick="SetImageAsync">
+        Set Image
+    </button>*@
 </div>
 
 @code {
@@ -110,7 +130,7 @@
     public string Id { get; set; }
     public SPClientUser SPClientUserLog { get; set; } = new SPClientUser();
     public SPClientProfile SPClientProfileLog { get; set; } = new SPClientProfile();
-    private string? imageSource;
+    //private string imageSource { get; set; }
     protected override async Task OnInitializedAsync()
     {
         await ServicesData.GetDbSPClientUser();
@@ -123,7 +143,12 @@
             if(ddd != null){
                 SPClientUserLog = ddd;
                 SPClientProfileLog = ddd.LSPClientProfile;
-                await SetImageAsync();
+
+                //var response = await Http.GetAsync($"api/Services/AddressImg?fileName={SPClientProfileLog.PHProfileStorageImg}");
+                //var Photo = response.Content.ReadAsStream();
+                //using var streamRef = new DotNetStreamReference(stream: Photo);
+                //Console.WriteLine(streamRef);
+                //await SetImageAsync();
             }
             //Console.WriteLine(SPClientUserLog.PHUserName);
             //var ss = Id.Replace("\"", "");
@@ -131,17 +156,20 @@
             //Console.WriteLine(Id);
         }
     }
-    private async Task<Stream> GetImageStreamAsync()
-    {
-        return await Http.GetStreamAsync("https://avatars.githubusercontent.com/u/9141961");
-    }
-
-    private async Task SetImageAsync()
-    {
-        var imageStream = await GetImageStreamAsync();
-        var dotnetImageStream = new DotNetStreamReference(imageStream);
-        await JS.InvokeVoidAsync("setImage", "image", dotnetImageStream);
-    }
+    //private async Task<Stream> GetImageStreamAsync()
+    //{
+    //    return await Http.GetStreamAsync("https://avatars.githubusercontent.com/u/9141961");
+    //}
+    //
+    //private async Task SetImageAsync()
+    //{
+    //    var response = await Http.GetAsync($"api/Services/AddressImg?fileName={SPClientProfileLog.PHProfileStorageImg}");
+    //    var Photo = response.Content.ReadAsStream();
+    //    using var streamRef = new DotNetStreamReference(stream: Photo);
+    //    //var imageStream = await GetImageStreamAsync();
+    //    //var dotnetImageStream = new DotNetStreamReference(imageStream);
+    //    await JS.InvokeVoidAsync("setImage", "image", streamRef);
+    //}
 
     private void ToggleNavMenu()
     {

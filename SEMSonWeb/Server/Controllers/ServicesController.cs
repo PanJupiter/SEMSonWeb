@@ -363,28 +363,42 @@ namespace SEMSonWeb.Server.Controllers
             }
             return NoContent();
         }*/
-        [HttpPost("ImageAdd")]
-        public async Task<ActionResult<List<SPClientUser>>> UploadImage(List<IFormFile> files)
-        {
-            List<SPClientUser> users = new List<SPClientUser>();
+        //[HttpGet("AddressImg")]  
+        //public async Task<IActionResult> GetAddressImage(string fileName)
+        //{
+        //    var uploadResult = await _context.SPClientProfiledb.FirstOrDefaultAsync(u => u.PHProfileStorageImg.Equals(fileName));
+        //    var path = Path.Combine(_env.ContentRootPath,"uploads",fileName);
+        //    var memory = new MemoryStream();
+        //    using (var stream = new FileStream(path, FileMode.Open))
+        //    {
+        //        await stream.CopyToAsync(memory);
+        //    }
+        //    memory.Position = 0;
+        //    return Ok(path);
+        //}
 
-            foreach(var file in files)
-            {
-                var uploadResult = new SPClientUser { LSPClientProfile = new SPClientProfile()};
-                string trustedFileNameForFileStorage;
-                var untrustedFileName = file.FileName;
-                uploadResult.LSPClientProfile.PHProfileNameImg = untrustedFileName;
-                //var trustedFileNameForDisplay = WebUtility.HtmlEncode(untrustedFileName);
-
-                trustedFileNameForFileStorage = Path.GetRandomFileName();
-                var path = Path.Combine(_env.ContentRootPath,"uploads",trustedFileNameForFileStorage);
-
-                await using FileStream fs = new(path, FileMode.Create);
-                await file.CopyToAsync(fs);
-                uploadResult.LSPClientProfile.PHProfileStorageImg = trustedFileNameForFileStorage;
-                users.Add(uploadResult);
-            }return Ok(users);
-        }
+        //[HttpPost("ImageAdd")]
+        //public async Task<ActionResult<List<SPClientUser>>> UploadImage(List<IFormFile> files)
+        //{
+        //    List<SPClientUser> users = new List<SPClientUser>();
+        //
+        //    foreach(var file in files)
+        //    {
+        //        var uploadResult = new SPClientUser { LSPClientProfile = new SPClientProfile()};
+        //        string trustedFileNameForFileStorage;
+        //        var untrustedFileName = file.FileName;
+        //        uploadResult.LSPClientProfile.PHProfileNameImg = untrustedFileName;
+        //        //var trustedFileNameForDisplay = WebUtility.HtmlEncode(untrustedFileName);
+        //
+        //        trustedFileNameForFileStorage = Path.GetRandomFileName();
+        //        var path = Path.Combine(_env.ContentRootPath,"wwwroot/uploads",trustedFileNameForFileStorage);
+        //
+        //        await using FileStream fs = new(path, FileMode.Create);
+        //        await file.CopyToAsync(fs);
+        //        uploadResult.LSPClientProfile.PHProfileStorageImg = trustedFileNameForFileStorage;
+        //        users.Add(uploadResult);
+        //    }return Ok(users);
+        //}
         [HttpPost("PostUser")]
         public async Task<ActionResult<List<SPClientUser>>> CreatePrf(SPClientUser member)
         {
@@ -405,7 +419,11 @@ namespace SEMSonWeb.Server.Controllers
                 member.PHUserwhenEdit = null;
                 if (member.LSPClientProfile != null)
                 {
-                    
+                    if(member.LSPClientProfile.PHClassCode != null && member.LSPClientProfile.PHDepCode != null)
+                    {
+                        member.LSPClientProfile.PHClassCode = "CL-000001";
+                        member.LSPClientProfile.PHDepCode = "DEP-000001";
+                    }
                     member.LSPClientProfile.PHProfileCode = newCode;
                     member.LSPClientProfile.PHwhenCreate = DateTime.Now;
                     member.LSPClientProfile.PHwhenEdit= null ;
@@ -833,6 +851,8 @@ namespace SEMSonWeb.Server.Controllers
                         PHEquipStatus = a.PHEquipStatus,
                         PHEquipTotal = a.PHEquipTotal,
                         PHEquipBorroww = a.PHEquipBorroww,
+                        PHEquipLost = a.PHEquipLost,
+                        PHEquipBroken = a.PHEquipBroken,
                         PHEquipUnit = a.PHEquipUnit,
                         PHEquipwhenCreate = a.PHEquipwhenCreate,
                         PHEquipwhenEdit = a.PHEquipwhenEdit,
@@ -870,7 +890,9 @@ namespace SEMSonWeb.Server.Controllers
                 equip.PHEquipCode = newCode;
                 equip.PHEquipwhenCreate = DateTime.Now;
                 equip.PHEquipBorroww = 0;
-                equip.PHEquipTotal = equip.PHEquipAmount - equip.PHEquipBorroww;
+                equip.PHEquipLost = 0;
+                equip.PHEquipBroken = 0;
+                equip.PHEquipTotal = equip.PHEquipAmount - equip.PHEquipBorroww - equip.PHEquipBroken - equip.PHEquipLost;
                 equip.LSPModelSport = null;
 
                 _context.SPModelEquipdb?.Add(equip);
@@ -902,11 +924,15 @@ namespace SEMSonWeb.Server.Controllers
             data.PHEquipName = equip.PHEquipName;
             data.PHEquipImg = equip.PHEquipImg;
             data.PHEquipAmount = equip.PHEquipAmount;
-            data.PHEquipTotal = equip.PHEquipAmount - data.PHEquipBorroww;
+            data.PHEquipTotal = equip.PHEquipAmount - data.PHEquipBorroww - equip.PHEquipBroken - equip.PHEquipLost;
             data.PHEquipStatus = equip.PHEquipStatus;
+            data.PHEquipLost = equip.PHEquipLost;   
+            data.PHEquipBroken = equip.PHEquipBroken;
             data.PHEquipUnit = equip.PHEquipUnit;   
             data.PHSportCode = equip.PHSportCode; 
             data.PHEquipwhenEdit = DateTime.Now;
+                data.PHEquipImg = equip.PHEquipImg;
+
             await _context.SaveChangesAsync();
 
             return Ok(await GetSPModelEquip());
@@ -932,8 +958,10 @@ namespace SEMSonWeb.Server.Controllers
             if (data == null)
                 return NotFound("ไม่พบข้อมูล");
 
+            data.PHEquipLost += equip.PHEquipLost;
+            data.PHEquipBroken += equip.PHEquipBroken;
             data.PHEquipBorroww -= equip.PHEquipBorroww;
-            data.PHEquipTotal += equip.PHEquipBorroww;
+            data.PHEquipTotal = data.PHEquipTotal - equip.PHEquipLost - equip.PHEquipBroken + equip.PHEquipBorroww;
             await _context.SaveChangesAsync();
 
             return Ok(await GetSPModelEquip());
@@ -981,6 +1009,8 @@ namespace SEMSonWeb.Server.Controllers
                         PHEquipImg = a.PHEquipImg,
                         PHEquipName = a.PHEquipName,
                         PHEquipBorroww = a.PHEquipBorroww,
+                        PHEquipLost = a.PHEquipLost,
+                        PHEquipBroken = a.PHEquipBroken,
                         PHEquipStatus = a.PHEquipStatus,
                         PHEquipTotal = a.PHEquipTotal,
                         PHEquipUnit = a.PHEquipUnit,
