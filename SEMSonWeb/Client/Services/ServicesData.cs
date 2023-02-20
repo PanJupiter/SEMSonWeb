@@ -95,7 +95,7 @@ namespace SEMSonWeb.Client.Services
 
         public async Task GetDbSPClientUser()
         {
-            var result = await _http.GetFromJsonAsync<List<SPClientUser>>("api/Services/GetUser");
+            var result = await _http.GetFromJsonAsync<List<SPClientUser>>("api/Services/GetUsers");
             if (result != null)
                 SPClientUserList = result;
         }
@@ -161,54 +161,54 @@ namespace SEMSonWeb.Client.Services
 
         public async Task UpdateDbSPClientUser(SPClientUser user)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutUser?id={user.PHUserCode}", user);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutUser?id={user.PHUserCode}", user);
             await SetUser(result);
         }
         public async Task UpdateDbSPClientClass(SPClientClass cla)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutClass", cla);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutClass", cla);
             await SetClass(result);
         }
         public async Task UpdateDbSPClientDep(SPClientDep dep)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutDep", dep);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutDep", dep);
             await SetDep(result);
         }
         public async Task UpdateDbSPClientPos(SPClientPos pos)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutPos?id={pos.PHPosCode}", pos);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutPos?id={pos.PHPosCode}", pos);
             await SetPos(result);
         }
         public async Task UpdateDbSPClientPre(SPClientPre pre)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutPre", pre);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutPre", pre);
             await SetPre(result);
         }
 
 
-        public async Task DeleteDbSPClientUser(string idu, string idp)
+        public async Task DeleteDbSPClientUser(string idu, string idp, SPClientUser pos)
         {
-            var result = await _http.DeleteAsync($"api/Services/DelUser?idu={idu}&idp={idp}");
+            var result = await _http.PostAsJsonAsync($"api/Services/DelUser?idu={idu}&idp={idp}", pos);
             await SetUser(result);
         }
-        public async Task DeleteDbSPClientClass(string id)
+        public async Task DeleteDbSPClientClass(string id, SPClientClass pos)
         {
-            var result = await _http.DeleteAsync($"api/Services/DelClass?id={id}");
+            var result = await _http.PostAsJsonAsync($"api/Services/DelClass?id={id}", pos);
             await SetClass(result);
         }
-        public async Task DeleteDbSPClientDep(string id)
+        public async Task DeleteDbSPClientDep(string id, SPClientDep pos)
         {
-            var result = await _http.DeleteAsync($"api/Services/DelDep?id={id}");
+            var result = await _http.PostAsJsonAsync($"api/Services/DelDep?id={id}", pos);
             await SetDep(result);
         }
-        public async Task DeleteDbSPClientPos(string id)
+        public async Task DeleteDbSPClientPos(string id, SPClientPos pos)
         {
-            var result = await _http.DeleteAsync($"api/Services/DelPos?id={id}");
+            var result = await _http.PostAsJsonAsync($"api/Services/DelPos?id={id}",pos);
             await SetPos(result);
         }
-        public async Task DeleteDbSPClientPre(string id)
+        public async Task DeleteDbSPClientPre(string id, SPClientPre pos)
         {
-            var result = await _http.DeleteAsync($"api/Services/DelPre?id={id}");
+            var result = await _http.PostAsJsonAsync($"api/Services/DelPre?id={id}", pos);
             await SetPre(result);
         }
 
@@ -334,33 +334,33 @@ namespace SEMSonWeb.Client.Services
 
         public async Task UpdateDbSPModelSport(SPModelSport sport)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutSport", sport);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutSport", sport);
             await SetSport(result);
         }
         public async Task UpdateDbSPModelEquip(SPModelEquip Equip)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutEquip?id={Equip.PHEquipCode}", Equip);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutEquip?id={Equip.PHEquipCode}", Equip);
             await SetEquip(result);
         }
         public async Task BorrowDbSPModelEquip(SPModelEquip Equip)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutEquipTwo?id={Equip.PHEquipCode}", Equip);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutEquipTwo?id={Equip.PHEquipCode}", Equip);
             await SetEquip(result);
         }
         public async Task ReturnDbSPModelEquip(SPModelEquip Equip)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutEquipThree?id={Equip.PHEquipCode}", Equip);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutEquipThree?id={Equip.PHEquipCode}", Equip);
             await SetEquip(result);
         }
 
-        public async Task DeleteDbSPModelSport(string id)
+        public async Task DeleteDbSPModelSport(string id, SPModelSport Equip)
         {
-            var result = await _http.DeleteAsync($"api/Services/DelSport?id={id}");
+            var result = await _http.PostAsJsonAsync($"api/Services/DelSport?id={id}", Equip);
             await SetSport(result);
         }
-        public async Task DeleteDbSPModelEquip(string id)
+        public async Task DeleteDbSPModelEquip(string id, SPModelEquip Equip)
         {
-            var result = await _http.DeleteAsync($"api/Services/DelEquip?id={id}");
+            var result = await _http.PostAsJsonAsync($"api/Services/DelEquip?id={id}", Equip);
             await SetEquip(result);
         }
 
@@ -452,7 +452,7 @@ namespace SEMSonWeb.Client.Services
         }
         public async Task TurnDbSPHisAction(SPHisAction His)
         {
-            var result = await _http.PutAsJsonAsync($"api/Services/PutHis?id={His.PHHisActionCode}", His);
+            var result = await _http.PostAsJsonAsync($"api/Services/PutHis?id={His.PHHisActionCode}", His);
             await SetSPHisAction(result);
         }
 

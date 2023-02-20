@@ -47,7 +47,7 @@ namespace SEMSonWeb.Client.Services
         Task CreateDbSPClientUser(SPClientUser user);
         Task CreateDbSPClientClass(SPClientClass cla);
         Task CreateDbSPClientDep(SPClientDep dep);
-        Task CreateDbSPClientPos(SPClientPos pos        );
+        Task CreateDbSPClientPos(SPClientPos pos);
         Task CreateDbSPClientPre(SPClientPre pre);
 
 
@@ -58,11 +58,11 @@ namespace SEMSonWeb.Client.Services
         Task UpdateDbSPClientPre(SPClientPre pre);
 
 
-        Task DeleteDbSPClientUser(string idu, string idp);
-        Task DeleteDbSPClientClass(string id);
-        Task DeleteDbSPClientDep(string id);
-        Task DeleteDbSPClientPos(string id);
-        Task DeleteDbSPClientPre(string id);
+        Task DeleteDbSPClientUser(string idu, string idp, SPClientUser pre);
+        Task DeleteDbSPClientClass(string id, SPClientClass pre);
+        Task DeleteDbSPClientDep(string id, SPClientDep pre);
+        Task DeleteDbSPClientPos(string id, SPClientPos pos);
+        Task DeleteDbSPClientPre(string id, SPClientPre pre);
 
         void ClearformUser();
         void ClearformSport();
@@ -82,8 +82,8 @@ namespace SEMSonWeb.Client.Services
         Task BorrowDbSPModelEquip(SPModelEquip Equip);
         Task ReturnDbSPModelEquip(SPModelEquip Equip);
 
-        Task DeleteDbSPModelSport(string id);
-        Task DeleteDbSPModelEquip(string id);
+        Task DeleteDbSPModelSport(string id, SPModelSport Equip);
+        Task DeleteDbSPModelEquip(string id, SPModelEquip Equip);
 
         Task GetDbSPHisAction();
         Task CreateDbSPHisAction(SPHisAction His);

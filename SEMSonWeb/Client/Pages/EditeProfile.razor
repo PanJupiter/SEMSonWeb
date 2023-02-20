@@ -89,7 +89,7 @@
                     </div>
                     <div class="mb-3">
                         <button type="submit" class= "btn btn-primary">บันทึก</button>
-                        <button class= "btn btn-danger " style="margin-left:50px;" type="button" @onclick="CancleForm">ยกเลิก</button>
+                        <button class= "btn btn-danger visually-hidden" style="margin-left:50px;" type="button" @onclick="CancleForm">ยกเลิก</button>
                     </div>
                 </form>
                 
@@ -127,7 +127,6 @@
         var result = await JS.InvokeAsync<bool>("UpdateMemberjs");
         if (result)
         {
-            SPClientUserLog.LSPClientProfile.PHProfileNameImg = newImage;
             SPClientUserLog.LSPClientProfile.PHPreCode = SPClientProfileLog.PHPreCode;
             SPClientUserLog.LSPClientProfile.PHProfilefName = SPClientProfileLog.PHProfilefName;
             SPClientUserLog.LSPClientProfile.PHProfilelName = SPClientProfileLog.PHProfilelName;
@@ -148,6 +147,12 @@
     }
     public void CancleForm()
     {
+        SPClientProfileLog.PHPreCode = SPClientUserLog.LSPClientProfile.PHPreCode;
+        SPClientProfileLog.PHProfilefName = SPClientUserLog.LSPClientProfile.PHProfilefName;
+        SPClientProfileLog.PHProfilelName = SPClientUserLog.LSPClientProfile.PHProfilelName;
+        SPClientProfileLog.PHProfilePhone = SPClientUserLog.LSPClientProfile.PHProfilePhone;
+        SPClientProfileLog.PHProfileEmail = SPClientUserLog.LSPClientProfile.PHProfileEmail;
+
     }
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {

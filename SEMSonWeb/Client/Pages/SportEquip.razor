@@ -114,7 +114,7 @@
         {
             if ( speq.PHEquipCode!= null)
             {
-                await ServicesData.DeleteDbSPModelEquip(speq.PHEquipCode);
+                await ServicesData.DeleteDbSPModelEquip(speq.PHEquipCode,speq);
                 FilterSport = ServicesData.SPModelEquipList.ToList();
             }
         }

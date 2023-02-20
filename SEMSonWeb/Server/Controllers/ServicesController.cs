@@ -25,7 +25,8 @@ namespace SEMSonWeb.Server.Controllers
             await _context.SPClientUserdb.ToListAsync();
             return token;
         }
-        [HttpGet("GetUser")]
+        /*[HttpGet("GetUser")]*/
+        [HttpGet("GetUsers")]
         public async Task<ActionResult<List<SPClientUser>>> GetDbSPClientUser()
         {
             if (_context != null)
@@ -419,7 +420,7 @@ namespace SEMSonWeb.Server.Controllers
                 member.PHUserwhenEdit = null;
                 if (member.LSPClientProfile != null)
                 {
-                    if(member.LSPClientProfile.PHClassCode != null && member.LSPClientProfile.PHDepCode != null)
+                    if ((member.LSPClientProfile.PHClassCode == null && member.LSPClientProfile.PHDepCode == null)||(member.LSPClientProfile.PHClassCode == string.Empty && member.LSPClientProfile.PHDepCode == string.Empty))
                     {
                         member.LSPClientProfile.PHClassCode = "CL-000001";
                         member.LSPClientProfile.PHDepCode = "DEP-000001";
@@ -501,7 +502,7 @@ namespace SEMSonWeb.Server.Controllers
         }
 
 
-        [HttpPut("PutUser")]
+        [HttpPost("PutUser")]
         public async Task<ActionResult> UpdateDbSPClientUser(string id, [FromBody] SPClientUser member)
         {
             var data = await _context.SPClientUserdb.Include(d => d.LSPClientProfile).FirstOrDefaultAsync(a => a.PHUserCode == id);
@@ -533,7 +534,7 @@ namespace SEMSonWeb.Server.Controllers
 
             return Ok(await GetSPClientUser());
         }
-        [HttpPut("PutClass")]
+        [HttpPost("PutClass")]
         public async Task<ActionResult> UpdateDbSPClientClass(string id, [FromBody] SPClientClass cla)
         {
             var data = await _context.SPClientClassdb.SingleOrDefaultAsync(a => a.PHClassCode == id);
@@ -545,7 +546,7 @@ namespace SEMSonWeb.Server.Controllers
 
             return Ok(await GetSPClientClass());
         }
-        [HttpPut("PutDep")]
+        [HttpPost("PutDep")]
         public async Task<ActionResult> UpdateDbSPClientDep(string id, [FromBody] SPClientDep dep)
         {
             var data = await _context.SPClientDepdb.SingleOrDefaultAsync(a => a.PHDepCode == id);
@@ -557,7 +558,7 @@ namespace SEMSonWeb.Server.Controllers
 
             return Ok(await GetSPClientDep());
         }
-        [HttpPut("PutPre")]
+        [HttpPost("PutPre")]
         public async Task<ActionResult> UpdateDbSPClientPre(string id, [FromBody] SPClientPre pre)
         {
             var data = await _context.SPClientPredb.SingleOrDefaultAsync(a => a.PHPreCode == id);
@@ -569,7 +570,7 @@ namespace SEMSonWeb.Server.Controllers
 
             return Ok(await GetSPClientPre());
         }
-        [HttpPut("PutPos")]
+        [HttpPost("PutPos")]
         public async Task<ActionResult> UpdateDbSPClientPos(string id, [FromBody] SPClientPos pos)
         {
             var data = await _context.SPClientPosdb.SingleOrDefaultAsync(a => a.PHPosCode == id);
@@ -583,7 +584,7 @@ namespace SEMSonWeb.Server.Controllers
         }
 
 
-        [HttpDelete("DelUser")]
+        [HttpPost("DelUser")]
         public async Task<ActionResult<List<SPClientUser>>> DeleteDbSPClientUser([FromQuery] string idu,[FromQuery] string idp)
         {
             var data = await _context.SPClientUserdb
@@ -602,7 +603,7 @@ namespace SEMSonWeb.Server.Controllers
             await _context.SaveChangesAsync();
             return Ok(await GetSPClientUser());
         }
-        [HttpDelete("DelClass")]
+        [HttpPost("DelClass")]
         public async Task<ActionResult<List<SPClientClass>>> DeleteDbSPClientClass([FromQuery] string id)
         {
             var data = await _context.SPClientClassdb
@@ -614,7 +615,7 @@ namespace SEMSonWeb.Server.Controllers
             await _context.SaveChangesAsync();
             return Ok(await GetSPClientClass());
         }
-        [HttpDelete("DelDep")]
+        [HttpPost("DelDep")]
         public async Task<ActionResult<List<SPClientDep>>> DeleteDbSPClientDep([FromQuery] string id)
         {
             var data = await _context.SPClientDepdb
@@ -626,7 +627,7 @@ namespace SEMSonWeb.Server.Controllers
             await _context.SaveChangesAsync();
             return Ok(await GetSPClientDep());
         }
-        [HttpDelete("DelPre")]
+        [HttpPost("DelPre")]
         public async Task<ActionResult<List<SPClientPre>>> DeleteDbSPClientPre([FromQuery] string id)
         {
             var data = await _context.SPClientPredb
@@ -638,7 +639,7 @@ namespace SEMSonWeb.Server.Controllers
             await _context.SaveChangesAsync();
             return Ok(await GetSPClientPre());
         }
-        [HttpDelete("DelPos")]
+        [HttpPost("DelPos")]
         public async Task<ActionResult<List<SPClientPos>>> DeleteDbSPClientPos([FromQuery] string id)
         {
             var data = await _context.SPClientPosdb
@@ -902,7 +903,7 @@ namespace SEMSonWeb.Server.Controllers
         }
 
 
-        [HttpPut("PutSport")]
+        [HttpPost("PutSport")]
         public async Task<ActionResult> UpdateDbSPModelSport(string id, [FromBody] SPModelSport sport)
         {
             var data = await _context.SPModelSportdb.SingleOrDefaultAsync(a => a.PHSportCode == id);
@@ -914,7 +915,7 @@ namespace SEMSonWeb.Server.Controllers
 
             return Ok(await GetSPModelSport());
         }
-        [HttpPut("PutEquip")]
+        [HttpPost("PutEquip")]
         public async Task<ActionResult> UpdateDbSPModelEquip(string id, [FromBody] SPModelEquip equip)
         {
             var data = await _context.SPModelEquipdb.SingleOrDefaultAsync(a => a.PHEquipCode == id);
@@ -938,7 +939,7 @@ namespace SEMSonWeb.Server.Controllers
             return Ok(await GetSPModelEquip());
         }
 
-        [HttpPut("PutEquipTwo")]
+        [HttpPost("PutEquipTwo")]
         public async Task<ActionResult> BorrowDbSPModelEquip(string id, [FromBody] SPModelEquip equip)
         {
             var data = await _context.SPModelEquipdb.SingleOrDefaultAsync(a => a.PHEquipCode == id);
@@ -951,7 +952,7 @@ namespace SEMSonWeb.Server.Controllers
 
             return Ok(await GetSPModelEquip());
         }
-        [HttpPut("PutEquipThree")]
+        [HttpPost("PutEquipThree")]
         public async Task<ActionResult> ReturnDbSPModelEquip(string id, [FromBody] SPModelEquip equip)
         {
             var data = await _context.SPModelEquipdb.SingleOrDefaultAsync(a => a.PHEquipCode == id);
@@ -967,7 +968,7 @@ namespace SEMSonWeb.Server.Controllers
             return Ok(await GetSPModelEquip());
         }
 
-        [HttpDelete("DelSport")]
+        [HttpPost("DelSport")]
         public async Task<ActionResult<List<SPModelSport>>> DeleteDbSPModelSport([FromQuery] string id)
         {
             var data = await _context.SPModelSportdb
@@ -979,7 +980,7 @@ namespace SEMSonWeb.Server.Controllers
             await _context.SaveChangesAsync();
             return Ok(await GetSPModelSport());
         }
-        [HttpDelete("DelEquip")]
+        [HttpPost("DelEquip")]
         public async Task<ActionResult<List<SPModelEquip>>> DeleteDbSPModelEquip([FromQuery] string id)
         {
             var data = await _context.SPModelEquipdb
@@ -1049,7 +1050,7 @@ namespace SEMSonWeb.Server.Controllers
             }
             return Ok(await GetSPHisAction());
         }
-        [HttpPut("PutHis")]
+        [HttpPost("PutHis")]
         public async Task<ActionResult> TurnDbSPModelEquip(string id, [FromBody] SPHisAction His)
         {
             var data = await _context.SPHisActiondb.SingleOrDefaultAsync(a => a.PHHisActionCode == id);

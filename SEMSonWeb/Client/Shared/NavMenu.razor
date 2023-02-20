@@ -143,7 +143,6 @@
             if(ddd != null){
                 SPClientUserLog = ddd;
                 SPClientProfileLog = ddd.LSPClientProfile;
-
                 //var response = await Http.GetAsync($"api/Services/AddressImg?fileName={SPClientProfileLog.PHProfileStorageImg}");
                 //var Photo = response.Content.ReadAsStream();
                 //using var streamRef = new DotNetStreamReference(stream: Photo);
@@ -155,6 +154,10 @@
             //string id  = await LocalStorage.GetItemAsStringAsync("token");
             //Console.WriteLine(Id);
         }
+        //if(Id == null || Id == string.Empty)
+        //{
+        //    Navigation.NavigateTo("/");
+        //}
     }
     //private async Task<Stream> GetImageStreamAsync()
     //{

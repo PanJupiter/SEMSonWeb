@@ -137,7 +137,7 @@
         {
             if ((user.PHUserCode != null)&&(user.PHProfileCode != null)) 
             {
-                await ServicesData.DeleteDbSPClientUser(user.PHUserCode, user.PHProfileCode);
+                await ServicesData.DeleteDbSPClientUser(user.PHUserCode, user.PHProfileCode,user);
                 FilterUser = ServicesData.SPClientUserList.ToList();
             } 
         }
